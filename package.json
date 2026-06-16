@@ -1,0 +1,19 @@
+{
+  "name": "bangers-os",
+  "private": true,
+  "packageManager": "pnpm@11.5.0",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "typecheck": "turbo typecheck",
+    "lint": "turbo lint",
+    "db:generate": "cd packages/db && drizzle-kit generate",
+    "db:migrate": "cd packages/db && drizzle-kit migrate",
+    "db:studio": "cd packages/db && drizzle-kit studio",
+    "db:seed": "tsx packages/db/seed.ts"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.8",
+    "tsx": "^4.20.3"
+  }
+}
