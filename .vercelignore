@@ -1,0 +1,7 @@
+apps/mobile
+**/node_modules
+**/.next
+**/.expo
+**/.turbo
+packages/db/migrations
+.git

@@ -35,3 +35,4 @@ packages/db/migrations/meta/_journal.json.bak
 coverage/
 *.tsbuildinfo
 expo-env.d.ts
+.vercel
