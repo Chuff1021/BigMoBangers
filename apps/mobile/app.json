@@ -35,13 +35,6 @@
         }
       ],
       "expo-video",
-      [
-        "@stripe/stripe-react-native",
-        {
-          "merchantIdentifier": "merchant.com.bigmos",
-          "enableGooglePay": false
-        }
-      ],
       "expo-secure-store"
     ],
     "experiments": {

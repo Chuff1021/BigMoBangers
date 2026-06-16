@@ -1,6 +1,7 @@
 import { useRouter } from "expo-router";
 import {
   ActivityIndicator,
+  Image,
   Pressable,
   ScrollView,
   Text,
@@ -23,15 +24,12 @@ export default function HomeScreen() {
     <SafeAreaView className="flex-1 bg-slate-50" edges={["top"]}>
       <ScrollView contentContainerClassName="pb-8">
         {/* Header */}
-        <View className="flex-row items-center justify-between px-4 pt-2">
-          <View>
-            <Text className="text-2xl font-extrabold text-slate-900">
-              Big MO's Bangers 🎆
-            </Text>
-            <Text className="text-sm text-slate-500">
-              Republic, MO · Light up the sky
-            </Text>
-          </View>
+        <View className="flex-row items-center justify-between gap-3 px-4 pt-2">
+          <Image
+            source={require("../../assets/brand/logo.png")}
+            className="h-14 flex-1 rounded-lg"
+            resizeMode="contain"
+          />
           <Pressable
             onPress={() => router.push("/cart")}
             className="h-11 w-11 items-center justify-center rounded-full bg-white shadow-sm"
@@ -44,6 +42,9 @@ export default function HomeScreen() {
             )}
           </Pressable>
         </View>
+        <Text className="px-4 pt-1 text-sm text-slate-500">
+          Republic, MO · Light up the sky 🎆
+        </Text>
 
         {/* Categories */}
         <ScrollView

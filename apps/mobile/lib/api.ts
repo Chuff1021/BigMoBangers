@@ -52,12 +52,14 @@ export interface ApiOrder {
   items: ApiOrderItem[];
 }
 
-export interface PaymentIntentResponse {
-  clientSecret: string | null;
+export interface CloverCheckoutResponse {
   orderId: string;
   orderNumber: string;
   amount: number;
-  stripeConfigured: boolean;
+  /** Hosted Clover pay-page URL (null in demo). */
+  href: string | null;
+  cloverConfigured: boolean;
+  demo: boolean;
 }
 
 export interface ProductFilters {
@@ -135,11 +137,11 @@ export function fetchOrdersByPhone(phone: string): Promise<ApiOrder[]> {
   return request<ApiOrder[]>(withTenant("/api/orders/lookup", { phone }));
 }
 
-export function createPaymentIntent(
+export function createCloverCheckout(
   data: CreateOrderInput
-): Promise<PaymentIntentResponse> {
-  return request<PaymentIntentResponse>(
-    withTenant("/api/stripe/create-payment-intent"),
+): Promise<CloverCheckoutResponse> {
+  return request<CloverCheckoutResponse>(
+    withTenant("/api/clover/create-checkout"),
     { method: "POST", body: JSON.stringify({ ...data, tenantSlug: TENANT }) }
   );
 }
