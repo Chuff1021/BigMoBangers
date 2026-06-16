@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
-import { getCustomers } from "@bangers/db";
-import { getTenantFromRequest } from "@/lib/auth";
+import { listCustomers } from "@/lib/store";
 
 export const runtime = "nodejs";
 
 export async function GET() {
-  const tenant = await getTenantFromRequest();
-  const customers = await getCustomers(tenant.id);
+  const customers = await listCustomers();
   return NextResponse.json(customers);
 }

@@ -2,55 +2,51 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ===========================================================================
+   BangersOS — high-tech patriotic theme (red / white / blue + gold)
+   =========================================================================== */
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
-  --brand: #ff4500;
-}
+  --radius: 0.75rem;
 
-.dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
+  /* Core surfaces — deep midnight navy */
+  --background: #060b1f;
+  --surface: #0b1331;
+  --surface-2: #111c44;
+  --foreground: #eaf0ff;
+
+  --card: rgba(17, 28, 68, 0.72);
+  --card-foreground: #eaf0ff;
+  --popover: #0b1331;
+  --popover-foreground: #eaf0ff;
+
+  /* Brand */
+  --brand: #ff3b30;          /* rocket red */
+  --brand-2: #ff7a00;        /* fuse orange */
+  --navy: #0a3161;           /* old-glory blue */
+  --electric: #2f7bff;       /* electric blue */
+  --gold: #ffd23f;           /* spark gold */
+
+  --primary: #ff3b30;
+  --primary-foreground: #ffffff;
+  --secondary: #16224d;
+  --secondary-foreground: #eaf0ff;
+  --muted: #16224d;
+  --muted-foreground: #9fb0e0;
+  --accent: #2f7bff;
+  --accent-foreground: #ffffff;
+  --destructive: #ff3b30;
+
+  --border: rgba(120, 160, 255, 0.18);
+  --input: rgba(120, 160, 255, 0.22);
+  --ring: #2f7bff;
 }
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 6px);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -69,7 +65,16 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+
   --color-brand: var(--brand);
+  --color-brand-2: var(--brand-2);
+  --color-navy: var(--navy);
+  --color-electric: var(--electric);
+  --color-gold: var(--gold);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+
+  --font-display: var(--font-display);
 }
 
 @layer base {
@@ -77,11 +82,136 @@
     border-color: var(--border);
     outline-color: var(--ring);
   }
+  html {
+    color-scheme: dark;
+  }
   body {
     background-color: var(--background);
     color: var(--foreground);
-    font-family:
-      ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica,
-      Arial, sans-serif;
+    background-image:
+      radial-gradient(1200px 600px at 12% -10%, rgba(255, 59, 48, 0.18), transparent 60%),
+      radial-gradient(1000px 600px at 100% 0%, rgba(47, 123, 255, 0.2), transparent 55%),
+      radial-gradient(900px 700px at 50% 120%, rgba(255, 210, 63, 0.08), transparent 60%);
+    background-attachment: fixed;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   }
+}
+
+/* ---- Effect utilities -------------------------------------------------- */
+
+/* Tech grid backdrop */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(120, 160, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120, 160, 255, 0.07) 1px, transparent 1px);
+  background-size: 38px 38px;
+}
+
+/* Glassmorphism panel */
+.glass {
+  background: linear-gradient(180deg, rgba(23, 35, 86, 0.66), rgba(11, 19, 49, 0.66));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(120, 160, 255, 0.18);
+}
+
+/* Neon glows */
+.glow-red {
+  box-shadow: 0 0 0 1px rgba(255, 59, 48, 0.5), 0 0 30px -6px rgba(255, 59, 48, 0.65);
+}
+.glow-blue {
+  box-shadow: 0 0 0 1px rgba(47, 123, 255, 0.5), 0 0 32px -6px rgba(47, 123, 255, 0.7);
+}
+.glow-gold {
+  box-shadow: 0 0 0 1px rgba(255, 210, 63, 0.45), 0 0 28px -8px rgba(255, 210, 63, 0.6);
+}
+
+/* Gradient text */
+.text-rwb {
+  background: linear-gradient(90deg, #ff5a4d 0%, #ffffff 50%, #4f93ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.text-gold {
+  background: linear-gradient(180deg, #fff1b8, #ffd23f 55%, #f59e0b);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Animated conic ring border for hero / featured cards */
+.ring-anim {
+  position: relative;
+  isolation: isolate;
+}
+.ring-anim::before {
+  content: "";
+  position: absolute;
+  inset: -1.5px;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(
+    from 0deg,
+    #ff3b30,
+    #ffffff,
+    #2f7bff,
+    #ffd23f,
+    #ff3b30
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: spin 6s linear infinite;
+  z-index: -1;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Pulse + float */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+.animate-pulse-glow { animation: pulse-glow 2.4s ease-in-out infinite; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.animate-float { animation: float 5s ease-in-out infinite; }
+
+/* Scanline shimmer sweep */
+@keyframes sweep {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(220%); }
+}
+.shimmer { position: relative; overflow: hidden; }
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.14) 50%, transparent 70%);
+  transform: translateX(-120%);
+  animation: sweep 3.5s ease-in-out infinite;
+}
+
+/* marquee */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-track { animation: marquee 22s linear infinite; }
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(#ff3b30, #2f7bff);
+  border-radius: 999px;
 }

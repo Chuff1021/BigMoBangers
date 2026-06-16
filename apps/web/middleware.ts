@@ -1,19 +1,20 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { IS_DEMO } from "@/lib/mode";
 
-const isPublicRoute = createRouteMatcher([
-  "/sign-in(.*)",
-  "/sign-up(.*)",
-  "/api/products(.*)",
-  "/api/categories(.*)",
-  "/api/orders",
-  "/api/orders/lookup",
-  "/api/stripe/webhook",
-  "/api/stripe/create-payment-intent",
-]);
+// Only the operator dashboard requires auth; the storefront is public.
+const isProtected = createRouteMatcher(["/dashboard(.*)"]);
 
-export default clerkMiddleware(async (auth, req) => {
-  if (!isPublicRoute(req)) await auth.protect();
+const realMiddleware = clerkMiddleware(async (auth, req) => {
+  if (isProtected(req)) await auth.protect();
 });
+
+// In demo mode there is no auth at all — everything is public so the Vercel
+// preview is fully viewable.
+function demoMiddleware() {
+  return undefined;
+}
+
+export default IS_DEMO ? demoMiddleware : realMiddleware;
 
 export const config = {
   matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],

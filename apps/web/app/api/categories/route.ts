@@ -1,15 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getCategories } from "@bangers/db";
-import { getPublicTenant } from "@/lib/auth";
+import { NextResponse } from "next/server";
+import { listCategories } from "@/lib/store";
 
 export const runtime = "nodejs";
 
-// Public: storefront + product form read categories by ?tenant=<slug>.
-export async function GET(req: NextRequest) {
-  const tenant = await getPublicTenant(req.nextUrl.searchParams.get("tenant"));
-  if (!tenant) {
-    return NextResponse.json({ error: "Unknown tenant" }, { status: 404 });
-  }
-  const categories = await getCategories(tenant.id);
+export async function GET() {
+  const categories = await listCategories();
   return NextResponse.json(categories);
 }

@@ -69,7 +69,7 @@ export function ProductRowActions({
         </Badge>
       </button>
       <Button asChild size="icon" variant="ghost" className="h-8 w-8">
-        <Link href={`/products/${id}`} aria-label="Edit">
+        <Link href={`/dashboard/products/${id}`} aria-label="Edit">
           <Pencil className="h-4 w-4" />
         </Link>
       </Button>

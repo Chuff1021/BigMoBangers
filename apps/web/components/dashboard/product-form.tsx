@@ -140,7 +140,7 @@ export function ProductForm({
     setSaving(false);
     if (res.ok) {
       toast({ title: initial?.id ? "Product saved" : "Product created", variant: "success" });
-      router.push("/products");
+      router.push("/dashboard/products");
       router.refresh();
     } else {
       toast({ title: "Save failed", variant: "destructive" });
@@ -295,7 +295,7 @@ export function ProductForm({
           {saving && <Loader2 className="h-4 w-4 animate-spin" />}
           {initial?.id ? "Save changes" : "Create product"}
         </Button>
-        <Button type="button" variant="outline" onClick={() => router.push("/products")}>
+        <Button type="button" variant="outline" onClick={() => router.push("/dashboard/products")}>
           Cancel
         </Button>
       </div>
