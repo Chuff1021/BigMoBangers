@@ -1,0 +1,15 @@
+const { getDefaultConfig } = require("expo/metro-config");
+const { withNativeWind } = require("nativewind/metro");
+
+const config = getDefaultConfig(__dirname);
+
+// Monorepo: let Metro resolve workspace packages and hoisted deps.
+const path = require("path");
+const workspaceRoot = path.resolve(__dirname, "../..");
+config.watchFolders = [workspaceRoot];
+config.resolver.nodeModulesPaths = [
+  path.resolve(__dirname, "node_modules"),
+  path.resolve(workspaceRoot, "node_modules"),
+];
+
+module.exports = withNativeWind(config, { input: "./global.css" });

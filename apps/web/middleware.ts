@@ -6,6 +6,7 @@ const isPublicRoute = createRouteMatcher([
   "/api/products(.*)",
   "/api/categories(.*)",
   "/api/orders",
+  "/api/orders/lookup",
   "/api/stripe/webhook",
   "/api/stripe/create-payment-intent",
 ]);

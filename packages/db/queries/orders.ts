@@ -171,6 +171,15 @@ export async function getOrders(tenantId: string, filters: OrderFilters = {}) {
   });
 }
 
+/** Public storefront lookup: a customer finds their orders by phone number. */
+export async function getOrdersByPhone(tenantId: string, phone: string) {
+  return db.query.orders.findMany({
+    where: and(eq(orders.tenantId, tenantId), eq(orders.customerPhone, phone)),
+    with: { items: true },
+    orderBy: [desc(orders.createdAt)],
+  });
+}
+
 export async function getOrderById(tenantId: string, orderId: string) {
   const result = await db.query.orders.findFirst({
     where: and(eq(orders.id, orderId), eq(orders.tenantId, tenantId)),
