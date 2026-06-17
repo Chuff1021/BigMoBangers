@@ -1,4 +1,4 @@
-name,sku,category,price,cost,qty,image,video,description,featured
-Red Titan Aerial,RTA-200,Aerials,49.99,28.00,24,https://yourcdn.com/red-titan.jpg,https://youtube.com/watch?v=xxxx,200 shot red chrysanthemum with gold glitter,yes
-Missouri Monster 500g Cake,MM-500,500g Cakes,79.99,46.00,12,https://yourcdn.com/mo-monster.jpg,,100 shot fan cake with color crossettes,yes
-Gold Glitter Fountain,GGF-01,Fountains,14.99,7.50,48,https://yourcdn.com/gold-fountain.jpg,,90 second gold glitter fountain,no
+name,sku,barcode,category,price,cost,qty,image,video,description,featured
+Red Titan Aerial,RTA-200,072251000245,Aerials,49.99,28.00,24,https://yourcdn.com/red-titan.jpg,https://youtube.com/watch?v=xxxx,200 shot red chrysanthemum with gold glitter,yes
+Missouri Monster 500g Cake,MM-500,072251000252,500g Cakes,79.99,46.00,12,https://yourcdn.com/mo-monster.jpg,,100 shot fan cake with color crossettes,yes
+Gold Glitter Fountain,GGF-01,072251000269,Fountains,14.99,7.50,48,https://yourcdn.com/gold-fountain.jpg,,90 second gold glitter fountain,no

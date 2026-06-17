@@ -24,7 +24,7 @@
  * so "true stock" stays auditable.
  */
 import { readFileSync } from "node:fs";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, sql, inArray } from "drizzle-orm";
 import { db } from "./client";
 import {
   tenants,
@@ -120,6 +120,7 @@ async function main() {
   let created = 0;
   let updated = 0;
   let skipped = 0;
+  const touched = new Set<string>();
 
   for (const row of rows) {
     const name = pick(row, ["name", "product", "title", "productname"]);
@@ -208,6 +209,7 @@ async function main() {
           note: `Import sync (${sku || name})`,
         });
       }
+      touched.add(existing.id);
       updated++;
     } else {
       const [p] = await db
@@ -237,12 +239,39 @@ async function main() {
           note: `Initial import (${sku || name})`,
         });
       }
+      touched.add(p.id);
       created++;
     }
   }
 
+  // Prune: remove products that weren't in this upload (i.e. items you didn't buy).
+  //   --prune        -> hide them from the store (isActive=false), reversible
+  //   --prune-delete -> permanently delete them
+  const prune = args.includes("--prune") || args.includes("--prune-delete");
+  let pruned = 0;
+  if (prune) {
+    const all = await db.query.products.findMany({
+      where: eq(products.tenantId, tenant.id),
+      columns: { id: true },
+    });
+    const orphanIds = all.map((p) => p.id).filter((id) => !touched.has(id));
+    if (orphanIds.length) {
+      if (args.includes("--prune-delete")) {
+        await db.delete(products).where(inArray(products.id, orphanIds));
+      } else {
+        await db
+          .update(products)
+          .set({ isActive: false, inventoryQty: 0, updatedAt: new Date() })
+          .where(inArray(products.id, orphanIds));
+      }
+      pruned = orphanIds.length;
+    }
+  }
+
   console.log(
-    `✅ Import complete — ${created} created, ${updated} updated, ${skipped} skipped (no name).`
+    `✅ Import complete — ${created} created, ${updated} updated, ${skipped} skipped (no name)` +
+      (prune ? `, ${pruned} pruned (${args.includes("--prune-delete") ? "deleted" : "hidden"})` : "") +
+      "."
   );
   process.exit(0);
 }
