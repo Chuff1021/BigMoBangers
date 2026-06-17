@@ -16,16 +16,17 @@ export default async function DashboardLayout({
   const tenant = await getTenant();
 
   return (
-    <div className="grid-bg flex min-h-screen">
+    <div className="store-scope flex min-h-screen">
       {/* Sidebar */}
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-white/10 bg-surface/60 backdrop-blur-xl md:flex">
-        <div className="border-b border-white/10 p-4">
+      <aside className="hidden w-64 shrink-0 flex-col border-r border-slate-200 bg-white md:flex">
+        <div className="usa-stripe h-1 w-full" />
+        <div className="border-b border-slate-200 p-4">
           <Image
             src="/brand/logo.png"
             alt="Big MO's Bangers"
             width={1290}
             height={689}
-            className="w-full rounded-lg ring-1 ring-white/10"
+            className="w-full rounded-lg ring-1 ring-slate-200"
             priority
           />
         </div>
@@ -33,7 +34,7 @@ export default async function DashboardLayout({
         <div className="mt-auto p-3">
           <Link
             href="/"
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:text-electric"
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-slate-500 transition-colors hover:text-usared"
           >
             <Store className="h-4 w-4" /> View storefront
           </Link>
@@ -42,17 +43,17 @@ export default async function DashboardLayout({
 
       {/* Main column */}
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-16 items-center justify-between border-b border-white/10 bg-surface/40 px-6 backdrop-blur-xl">
+        <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-6">
           <div>
-            <div className="font-display text-xl tracking-wider text-white">
+            <div className="text-lg font-bold tracking-tight text-slate-900">
               {tenant.businessName}
             </div>
-            <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
               Operator Command Center
             </div>
           </div>
           {IS_DEMO ? (
-            <span className="glass glow-blue rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-electric">
+            <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-usablue">
               ★ Live Demo
             </span>
           ) : (

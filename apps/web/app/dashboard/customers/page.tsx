@@ -16,9 +16,12 @@ export default async function CustomersPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-display text-4xl tracking-wider text-rwb">CUSTOMERS</h1>
+      <div>
+        <div className="text-xs font-bold uppercase tracking-[0.16em] text-usared">People</div>
+        <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-900">Customers</h1>
+      </div>
 
-      <div className="glass overflow-hidden rounded-2xl">
+      <div className="card-lite overflow-hidden p-0">
         <Table>
           <TableHeader>
             <TableRow>
@@ -48,7 +51,7 @@ export default async function CustomersPage() {
             ))}
             {customers.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="py-10 text-center text-muted-foreground">
+                <TableCell colSpan={7} className="py-10 text-center text-slate-500">
                   No customers yet — they&apos;ll appear here after the first order.
                 </TableCell>
               </TableRow>

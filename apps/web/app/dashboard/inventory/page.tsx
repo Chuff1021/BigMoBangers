@@ -18,10 +18,13 @@ export default async function InventoryPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-display text-4xl tracking-wider text-rwb">INVENTORY</h1>
+      <div>
+        <div className="text-xs font-bold uppercase tracking-[0.16em] text-usared">Stock</div>
+        <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-900">Inventory</h1>
+      </div>
 
-      <div className="glass rounded-2xl p-6">
-        <h2 className="mb-4 font-display text-xl tracking-wide text-white">
+      <div className="card-lite p-6">
+        <h2 className="mb-4 text-lg font-bold tracking-tight text-slate-900">
           {products.length} products on the shelf
         </h2>
         <Table>
@@ -40,12 +43,12 @@ export default async function InventoryPage() {
               const low = p.trackInventory && p.inventoryQty <= p.lowStockThreshold;
               return (
                 <TableRow key={p.id}>
-                  <TableCell className="font-medium text-white">{p.name}</TableCell>
-                  <TableCell className="text-muted-foreground">
+                  <TableCell className="font-medium text-slate-900">{p.name}</TableCell>
+                  <TableCell className="text-slate-500">
                     {p.category?.emoji} {p.category?.name ?? "—"}
                   </TableCell>
                   <TableCell className="text-right">{formatMoney(p.price)}</TableCell>
-                  <TableCell className="text-right font-display text-lg tabular-nums tracking-wide">
+                  <TableCell className="text-right text-lg font-bold tabular-nums text-slate-900">
                     {p.trackInventory ? p.inventoryQty : "∞"}
                   </TableCell>
                   <TableCell>

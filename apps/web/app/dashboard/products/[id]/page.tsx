@@ -15,8 +15,11 @@ export default async function EditProductPage({
 
   return (
     <div className="space-y-6">
-      <h1 className="font-display text-4xl tracking-wider text-rwb">EDIT PRODUCT</h1>
-      <div className="glass rounded-2xl p-6">
+      <div>
+        <div className="text-xs font-bold uppercase tracking-[0.16em] text-usared">Catalog</div>
+        <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-900">Edit product</h1>
+      </div>
+      <div className="card-lite p-6">
         <ProductForm
           categories={categories.map((c) => ({ id: c.id, name: c.name, emoji: c.emoji }))}
           initial={{

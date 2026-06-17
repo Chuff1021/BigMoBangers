@@ -21,15 +21,18 @@ export default async function ProductsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-4xl tracking-wider text-rwb">PRODUCTS</h1>
-        <Button asChild variant="brand">
+        <div>
+          <div className="text-xs font-bold uppercase tracking-[0.16em] text-usared">Catalog</div>
+          <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-900">Products</h1>
+        </div>
+        <Button asChild>
           <Link href="/dashboard/products/new">
             <Plus className="h-4 w-4" /> New product
           </Link>
         </Button>
       </div>
 
-      <div className="glass overflow-hidden rounded-2xl">
+      <div className="card-lite overflow-hidden p-0">
         <Table>
           <TableHeader>
             <TableRow>
@@ -45,21 +48,21 @@ export default async function ProductsPage() {
             {products.map((p) => (
               <TableRow key={p.id}>
                 <TableCell>
-                  <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-md bg-white/5">
+                  <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-md bg-slate-50">
                     {p.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={p.imageUrl} alt={p.name} className="h-full w-full object-cover" />
+                      <img src={p.imageUrl} alt={p.name} className="h-full w-full object-contain" />
                     ) : (
-                      <ImageOff className="h-4 w-4 text-muted-foreground" />
+                      <ImageOff className="h-4 w-4 text-slate-400" />
                     )}
                   </div>
                 </TableCell>
-                <TableCell className="font-medium text-white">
-                  <Link href={`/dashboard/products/${p.id}`} className="hover:text-electric">
+                <TableCell className="font-medium text-slate-900">
+                  <Link href={`/dashboard/products/${p.id}`} className="hover:text-usared">
                     {p.name}
                   </Link>
                 </TableCell>
-                <TableCell className="text-muted-foreground">
+                <TableCell className="text-slate-500">
                   {p.category?.emoji} {p.category?.name ?? "—"}
                 </TableCell>
                 <TableCell className="text-right">{formatMoney(p.price)}</TableCell>
@@ -73,9 +76,9 @@ export default async function ProductsPage() {
             ))}
             {products.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
+                <TableCell colSpan={6} className="py-10 text-center text-slate-500">
                   No products yet.{" "}
-                  <Link href="/dashboard/products/new" className="text-electric underline">
+                  <Link href="/dashboard/products/new" className="text-usablue underline">
                     Add your first one
                   </Link>
                   .

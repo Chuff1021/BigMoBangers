@@ -233,6 +233,30 @@
     radial-gradient(820px 460px at 0% -6%, rgba(200, 16, 46, 0.06), transparent 60%),
     #f6f7f9;
   color-scheme: light;
+
+  /* Flip the design tokens to light inside this scope so shadcn UI
+     (tables, cards, inputs, badges, dialogs) renders light automatically. */
+  --background: #f6f7f9;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: #c8102e;
+  --primary-foreground: #ffffff;
+  --secondary: #eef1f5;
+  --secondary-foreground: #0f172a;
+  --muted: #eef1f5;
+  --muted-foreground: #64748b;
+  --accent: #eef1f5;
+  --accent-foreground: #0f172a;
+  --destructive: #c8102e;
+  --border: #e7eaf0;
+  --input: #e2e6ee;
+  --ring: #1d4ed8;
+  --brand: #c8102e;
+  --gold: #b45309;
+  --electric: #1d4ed8;
 }
 .store-scope ::selection { background: rgba(200, 16, 46, 0.18); }
 

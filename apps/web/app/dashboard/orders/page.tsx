@@ -69,17 +69,20 @@ export default function OrdersPage() {
   }
 
   const columns: { title: string; accent: string; match: (s: string) => boolean }[] = [
-    { title: "Pending", accent: "text-gold", match: (s) => s === "pending" },
-    { title: "Confirmed / Ready", accent: "text-electric", match: (s) => s === "confirmed" || s === "ready" },
-    { title: "Completed", accent: "text-muted-foreground", match: (s) => s === "completed" || s === "cancelled" },
+    { title: "Pending", accent: "text-amber-600", match: (s) => s === "pending" },
+    { title: "Confirmed / Ready", accent: "text-usablue", match: (s) => s === "confirmed" || s === "ready" },
+    { title: "Completed", accent: "text-slate-400", match: (s) => s === "completed" || s === "cancelled" },
   ];
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-4xl tracking-wider text-rwb">ORDER QUEUE</h1>
-        <span className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="h-2 w-2 animate-pulse rounded-full bg-brand" /> Auto-refresh 20s
+        <div>
+          <div className="text-xs font-bold uppercase tracking-[0.16em] text-usared">Live</div>
+          <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-900">Order Queue</h1>
+        </div>
+        <span className="flex items-center gap-2 text-xs text-slate-500">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-usared" /> Auto-refresh 20s
         </span>
       </div>
 
@@ -88,17 +91,17 @@ export default function OrdersPage() {
           const list = orders?.filter((o) => col.match(o.status)) ?? [];
           return (
             <div key={col.title} className="space-y-3">
-              <h2 className={`font-display text-lg tracking-wide ${col.accent}`}>
+              <h2 className={`text-sm font-bold uppercase tracking-wide ${col.accent}`}>
                 {col.title} {orders && `· ${list.length}`}
               </h2>
 
               {!orders &&
                 Array.from({ length: 2 }).map((_, i) => (
-                  <Skeleton key={i} className="h-28 w-full bg-white/5" />
+                  <Skeleton key={i} className="h-28 w-full" />
                 ))}
 
               {orders && list.length === 0 && (
-                <p className="rounded-xl border border-dashed border-white/15 p-4 text-center text-xs text-muted-foreground">
+                <p className="rounded-xl border border-dashed border-slate-300 p-4 text-center text-xs text-slate-400">
                   Nothing here
                 </p>
               )}
@@ -106,31 +109,29 @@ export default function OrdersPage() {
               {list.map((o) => {
                 const next = NEXT_STATUS[o.status];
                 return (
-                  <div key={o.id} className="glass space-y-2 rounded-xl p-4">
+                  <div key={o.id} className="card-lite space-y-2 p-4">
                     <div className="flex items-start justify-between">
                       <Link
                         href={`/dashboard/orders/${o.id}`}
-                        className="font-semibold text-white hover:text-electric"
+                        className="font-semibold text-slate-900 hover:text-usared"
                       >
                         {o.customerName}
                       </Link>
                       <Badge variant="outline" className="capitalize">{o.status}</Badge>
                     </div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-xs text-slate-500">
                       {o.orderNumber} · {o.items.length} item
                       {o.items.length === 1 ? "" : "s"} · {timeSince(o.createdAt)}
                     </div>
                     {o.pickupNote && (
-                      <div className="rounded bg-white/5 px-2 py-1 text-xs text-muted-foreground">
+                      <div className="rounded bg-slate-50 px-2 py-1 text-xs text-slate-500">
                         📝 {o.pickupNote}
                       </div>
                     )}
                     <div className="flex items-center justify-between pt-1">
-                      <span className="font-display text-lg tracking-wide text-gold">
-                        {formatMoney(o.total)}
-                      </span>
+                      <span className="text-lg font-bold text-slate-900">{formatMoney(o.total)}</span>
                       {next && (
-                        <Button size="sm" variant="brand" onClick={() => advance(o)}>
+                        <Button size="sm" onClick={() => advance(o)}>
                           {next.label}
                         </Button>
                       )}

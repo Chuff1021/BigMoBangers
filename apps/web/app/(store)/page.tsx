@@ -1,6 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Truck, ShieldCheck, Clock, Sparkles, ArrowRight } from "lucide-react";
+import {
+  Truck,
+  ShieldCheck,
+  Clock,
+  Sparkles,
+  ArrowRight,
+  Smartphone,
+  ShoppingCart,
+  CreditCard,
+  MapPin,
+} from "lucide-react";
 import { listProducts, listCategories } from "@/lib/store";
 import { ProductCard, type StoreProduct } from "@/components/store/product-card";
 
@@ -94,6 +104,60 @@ export default async function StoreHome() {
             </div>
           </div>
         ))}
+      </section>
+
+      {/* MOBILE ORDERING / PICKUP HIGHLIGHT */}
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+        <div className="usa-stripe h-1 w-full" />
+        <div className="grid gap-8 p-6 sm:p-10 md:grid-cols-2 md:items-center">
+          <div>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-xs font-bold uppercase tracking-wide text-usared">
+              <Smartphone className="h-3.5 w-3.5" /> Order from your phone
+            </span>
+            <h2 className="mt-4 text-3xl font-extrabold leading-tight tracking-tight text-slate-900 sm:text-4xl">
+              Order online. <span className="text-usagrad">Pick up at the tent.</span>
+            </h2>
+            <p className="mt-3 max-w-md text-base leading-relaxed text-slate-600">
+              Build your order from the couch, pay securely, and we&apos;ll have it
+              boxed and ready. No digging through bins, no waiting in line on the 4th.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link
+                href="/shop"
+                className="inline-flex items-center gap-2 rounded-xl bg-usared px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-usared-dark"
+              >
+                Start your order <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/orders"
+                className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-400"
+              >
+                <MapPin className="h-4 w-4 text-usablue" /> Track a pickup
+              </Link>
+            </div>
+          </div>
+
+          {/* 3-step pickup flow */}
+          <ol className="space-y-3">
+            {[
+              { icon: ShoppingCart, title: "Add to cart", sub: "Browse the full catalog and build your order in seconds." },
+              { icon: CreditCard, title: "Reserve & pay", sub: "Secure checkout with Clover locks in your stock." },
+              { icon: MapPin, title: "Pick up at the tent", sub: "Show your order number in Republic, MO — skip the line." },
+            ].map((s, i) => (
+              <li key={s.title} className="flex items-start gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-usared text-sm font-bold text-white">
+                  {i + 1}
+                </span>
+                <div>
+                  <div className="flex items-center gap-1.5 font-semibold text-slate-900">
+                    <s.icon className="h-4 w-4 text-usablue" /> {s.title}
+                  </div>
+                  <p className="text-sm text-slate-500">{s.sub}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
       </section>
 
       {/* CATEGORIES */}

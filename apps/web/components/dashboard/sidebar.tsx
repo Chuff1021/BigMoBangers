@@ -35,16 +35,16 @@ export function Sidebar() {
             key={href}
             href={href}
             className={cn(
-              "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold tracking-wide transition-all",
+              "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
               active
-                ? "glass glow-red text-white"
-                : "text-muted-foreground hover:bg-white/5 hover:text-white"
+                ? "bg-usared text-white"
+                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
             )}
           >
             <Icon
               className={cn(
-                "h-4 w-4 transition-colors",
-                active ? "text-brand" : "text-muted-foreground group-hover:text-electric"
+                "h-4 w-4",
+                active ? "text-white" : "text-slate-400 group-hover:text-usablue"
               )}
             />
             {label}
