@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ShoppingCart, Package, Search } from "lucide-react";
@@ -26,11 +27,17 @@ export function StoreNav() {
     <header className="sticky top-0 z-40">
       <div className="usa-stripe h-1 w-full" />
       <div className="border-b border-slate-200 bg-white/90 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3 sm:px-6">
-          <Link href="/" className="flex shrink-0 items-center">
-            <span className="text-lg font-extrabold tracking-tight text-slate-900 sm:text-xl">
-              Big <span className="text-usared">MO&apos;s</span> Bangers
-            </span>
+        <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-4 sm:px-6 sm:py-5">
+          {/* Logo — desktop only; blank on mobile */}
+          <Link href="/" className="hidden shrink-0 items-center sm:flex">
+            <Image
+              src="/brand/logo.png"
+              alt="Big MO's Bangers"
+              width={1290}
+              height={689}
+              priority
+              className="h-16 w-auto rounded-lg ring-1 ring-slate-200"
+            />
           </Link>
 
           {/* Search (desktop) */}
