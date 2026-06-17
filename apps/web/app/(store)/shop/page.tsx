@@ -21,6 +21,8 @@ export default async function ShopPage({
     price: p.price,
     description: p.description,
     imageUrl: p.imageUrl,
+    images: p.images,
+    youtubeUrl: p.youtubeUrl,
     isFeatured: p.isFeatured,
     inventoryQty: p.inventoryQty,
     trackInventory: p.trackInventory,

@@ -5,6 +5,8 @@ export const CreateProductSchema = z.object({
   description: z.string().optional(),
   price: z.string().regex(/^\d+(\.\d{2})?$/),
   categoryId: z.string().uuid().optional(),
+  imageUrl: z.string().url().optional(),
+  images: z.array(z.string().url()).default([]),
   inventoryQty: z.number().int().min(0).default(0),
   lowStockThreshold: z.number().int().min(0).default(5),
   trackInventory: z.boolean().default(true),

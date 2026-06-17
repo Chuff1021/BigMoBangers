@@ -74,42 +74,52 @@ export const DEMO_TENANT = {
 };
 
 const C = {
-  aerials: "10000000-0000-0000-0000-000000000001",
-  fountains: "10000000-0000-0000-0000-000000000002",
-  cakes: "10000000-0000-0000-0000-000000000003",
-  sparklers: "10000000-0000-0000-0000-000000000004",
-  assortments: "10000000-0000-0000-0000-000000000005",
-  novelties: "10000000-0000-0000-0000-000000000006",
+  fiveHundred: "10000000-0000-0000-0000-000000000001",
+  twoHundred: "10000000-0000-0000-0000-000000000002",
+  fountains: "10000000-0000-0000-0000-000000000003",
+  novelties: "10000000-0000-0000-0000-000000000004",
+  reloadables: "10000000-0000-0000-0000-000000000005",
+  rockets: "10000000-0000-0000-0000-000000000006",
+  assortments: "10000000-0000-0000-0000-000000000007",
+  romanCandles: "10000000-0000-0000-0000-000000000008",
+  sparklers: "10000000-0000-0000-0000-000000000009",
+  firingSystems: "10000000-0000-0000-0000-000000000010",
 };
 
 export const DEMO_CATEGORIES: DemoCategory[] = [
-  { id: C.aerials, name: "Aerials", emoji: "🎆", sortOrder: 1 },
-  { id: C.fountains, name: "Fountains", emoji: "⛲", sortOrder: 2 },
-  { id: C.cakes, name: "500g Cakes", emoji: "🎂", sortOrder: 3 },
-  { id: C.sparklers, name: "Sparklers", emoji: "✨", sortOrder: 4 },
-  { id: C.assortments, name: "Assortments", emoji: "🎁", sortOrder: 5 },
-  { id: C.novelties, name: "Novelties", emoji: "🎉", sortOrder: 6 },
+  { id: C.fiveHundred, name: "500 Gram", emoji: "🎂", sortOrder: 1 },
+  { id: C.twoHundred, name: "200 Gram", emoji: "🎆", sortOrder: 2 },
+  { id: C.fountains, name: "Fountains", emoji: "⛲", sortOrder: 3 },
+  { id: C.novelties, name: "Novelties", emoji: "🎉", sortOrder: 4 },
+  { id: C.reloadables, name: "Reloadables", emoji: "🧨", sortOrder: 5 },
+  { id: C.rockets, name: "Rockets", emoji: "🚀", sortOrder: 6 },
+  { id: C.assortments, name: "Assortments", emoji: "🎁", sortOrder: 7 },
+  { id: C.romanCandles, name: "Roman Candles", emoji: "✨", sortOrder: 8 },
+  { id: C.sparklers, name: "Sparklers", emoji: "✨", sortOrder: 9 },
+  { id: C.firingSystems, name: "Firing Systems", emoji: "⚡", sortOrder: 10 },
 ];
 
 const cat = (id: string) => DEMO_CATEGORIES.find((c) => c.id === id) ?? null;
 const NOW = "2026-06-16T12:00:00.000Z";
+const wpId = (id: number) => `20000000-0000-0000-0000-${String(id).padStart(12, "0")}`;
 
 function mk(
-  i: number,
+  id: number,
   categoryId: string,
   name: string,
   description: string,
   price: string,
   inventoryQty: number,
+  imageUrl: string,
   opts: Partial<DemoProduct> = {}
 ): DemoProduct {
   return {
-    id: `20000000-0000-0000-0000-0000000000${(i + 10).toString().padStart(2, "0")}`,
+    id: wpId(id),
     name,
     description,
     price,
-    imageUrl: null,
-    images: [],
+    imageUrl,
+    images: opts.images ?? [],
     youtubeUrl: opts.youtubeUrl ?? null,
     streamVideoId: null,
     inventoryQty,
@@ -126,16 +136,26 @@ function mk(
 }
 
 export const DEMO_PRODUCTS: DemoProduct[] = [
-  mk(1, C.aerials, "Red Titan Aerial", "200 shot red chrysanthemum with gold glitter", "49.99", 24, { isFeatured: true, tags: ["bestseller"] }),
-  mk(2, C.cakes, "Missouri Monster 500g Cake", "100 shot fan cake with color crossettes", "79.99", 12, { isFeatured: true, tags: ["finale"] }),
-  mk(3, C.fountains, "Gold Glitter Fountain", "90 second gold glitter fountain", "14.99", 48),
-  mk(4, C.aerials, "Blue Thunder Aerial", "36 shot blue peony with silver tail", "34.99", 18),
-  mk(5, C.sparklers, 'Jumbo Sparklers 36"', "Pack of 12 jumbo gold sparklers", "8.99", 100, { tags: ["family"] }),
-  mk(6, C.assortments, "Family Fun Assortment", "50 piece family assortment — fountains, sparklers, and poppers", "29.99", 30, { isFeatured: true }),
-  mk(7, C.cakes, "Patriot Pride 500g", "Red, white, and blue 120 shot fan cake", "89.99", 8, { tags: ["patriotic"] }),
-  mk(8, C.fountains, "Purple Rain Fountain", "60 second purple and silver fountain", "12.99", 36),
-  mk(9, C.novelties, "Snap Pops Bag", "50 count snap pop bag", "3.99", 200, { trackInventory: false }),
-  mk(10, C.aerials, "Galaxy Buster 500 Shot", "500 shot multi-color aerial finale", "129.99", 6, { isFeatured: true, tags: ["finale", "bestseller"] }),
+  mk(6660, C.firingSystems, "Ignite 2M Clip-On Ignitors", "A 20 pack of 2 meter IGNITE clip-on fuse igniters using the industry standard quick plug connector.", "22.00", 20, "https://fireworkssupermarket.com/wp-content/uploads/2M.png", { tags: ["Ignite", "accessory"] }),
+  mk(6654, C.fiveHundred, "Outlaw Justice", "A combination of tails, palms, strobes, chrysanthemums, brocades, and sizzling color effects in red, gold, white, and green.", "59.99", 18, "https://fireworkssupermarket.com/wp-content/uploads/5874_01.png", { isFeatured: true, tags: ["Showtime", "new-product"] }),
+  mk(6652, C.fiveHundred, "Fluorescent", "Big 16 shot 500 gram cake with red and gold strobe mines, orange, blue, and purple dahlias, blossoms, and crackle.", "59.99", 16, "https://fireworkssupermarket.com/wp-content/uploads/5875_01.png", { isFeatured: true, tags: ["Showtime", "16 Shots"] }),
+  mk(6651, C.fiveHundred, "Dragon Blaze", "Twenty-four angled shots of gold to brocade with blue, purple, orange, sky blue, and crackling color combinations.", "59.99", 14, "https://fireworkssupermarket.com/wp-content/uploads/dragon-blaze.png", { tags: ["Showtime", "24 Shots"] }),
+  mk(6649, C.fiveHundred, "Star Chaser", "A 115 shot zipper cake that rapid fires crackling comets, brocade crown, peony, strobes, chrysanthemums, and tails.", "139.99", 8, "https://fireworkssupermarket.com/wp-content/uploads/5827_01.png", { isFeatured: true, tags: ["Showtime", "115 Shots"] }),
+  mk(6645, C.twoHundred, "Mutant Strain", "Twenty-five shots of chrysanthemums, mines, peonies, and strobes with bright blue and red colors.", "34.99", 24, "https://fireworkssupermarket.com/wp-content/uploads/2843_01.png", { tags: ["Showtime", "25 Shots"] }),
+  mk(6609, C.fiveHundred, "Screeching Glory", "Peonies, chrysanthemums, and howling whistlers break into multi-color shots built to impress the neighborhood.", "84.99", 10, "https://fireworkssupermarket.com/wp-content/uploads/screeching-glory.png", { isFeatured: true, tags: ["Showtime", "30 Shots"] }),
+  mk(6608, C.fiveHundred, "Cylozar", "A 36 shot extraterrestrial spectacle with cosmic color, crackle, and layered breaks across the night sky.", "79.99", 11, "https://fireworkssupermarket.com/wp-content/uploads/cylozar.png", { tags: ["Showtime", "36 Shots"] }),
+  mk(6607, C.fiveHundred, "Valtor", "Forty-five fanned shots with crackling mines, split time rain, dahlias, and grand color movement.", "99.99", 9, "https://fireworkssupermarket.com/wp-content/uploads/valtor.png", { tags: ["Showtime", "45 Shots"] }),
+  mk(6606, C.twoHundred, "Backbender", "Sixteen shots of whirlpools and chrysanthemums in purple, red, green, and blue.", "24.99", 30, "https://fireworkssupermarket.com/wp-content/uploads/backbender.png", { tags: ["Showtime", "16 Shots"] }),
+  mk(6410, C.reloadables, "Power Bomb", "A variety of 6 inch shells with large brocades, color-changing strobes, and hard-hitting reloadable effects.", "89.99", 12, "https://fireworkssupermarket.com/wp-content/uploads/2957_01.png", { isFeatured: true, tags: ["Showtime", "reloadable"] }),
+  mk(6528, C.fiveHundred, "Bubsy", "A 28 shot fanned cake with chrysanthemums, dahlias, color, and playful rainbow-inspired pacing.", "79.99", 13, "https://fireworkssupermarket.com/wp-content/uploads/bubsy.png", { tags: ["Showtime", "28 Shots"] }),
+  mk(5893, C.rockets, "Strobe Storm", "A flashing strobe rocket climbs high, then breaks with a boom into sparkling glitter.", "39.99", 25, "https://fireworkssupermarket.com/wp-content/uploads/1558_01.png", { tags: ["Showtime"] }),
+  mk(5966, C.fiveHundred, "Meteor Mania", "Twenty-five glowing dahlias in lemon, green, blue, orange, and purple streak across the sky.", "99.99", 10, "https://fireworkssupermarket.com/wp-content/uploads/5905_01.png", { tags: ["Showtime", "25 Shots"] }),
+  mk(5892, C.romanCandles, "Spirit Candles", "Each candle fires unique brocade, willow, glitter, fish, and crackle effects.", "16.99", 40, "https://fireworkssupermarket.com/wp-content/uploads/1397_01.png", { tags: ["Showtime", "5 Shots"] }),
+  mk(6271, C.assortments, "Liberty Box", "A mammoth assortment packed with Showtime 200g and 500g cakes in one powerhouse box.", "999.99", 2, "https://fireworkssupermarket.com/wp-content/uploads/3378_01.png", { isFeatured: true, tags: ["Showtime", "assortment"] }),
+  mk(5946, C.reloadables, "Freedom's Crack", "A set of 30mm tubes with four distinct aerial moments and clearly marked effects.", "14.99", 36, "https://fireworkssupermarket.com/wp-content/uploads/4652_01.png", { tags: ["Showtime", "reloadable"] }),
+  mk(6261, C.reloadables, "Talons of Thunder", "Twelve individual 45mm tubes, each with a distinct tail and powerful aerial effect.", "69.99", 16, "https://fireworkssupermarket.com/wp-content/uploads/4651_01.png", { tags: ["Showtime", "12 Shots"] }),
+  mk(5953, C.twoHundred, "Yuuuuge!", "Seven massive golden willows lighting up the sky with red, white, and blue color.", "49.99", 18, "https://fireworkssupermarket.com/wp-content/uploads/5896_01.png", { tags: ["Showtime", "7 Shots"] }),
+  mk(5970, C.fiveHundred, "Wings of Valor", "Forty-eight heroic shots spread gold coco tails and colorful stars across the sky.", "175.00", 7, "https://fireworkssupermarket.com/wp-content/uploads/5909_01.png", { isFeatured: true, tags: ["Showtime", "48 Shots"] }),
 ];
 
 export const DEMO_ORDERS: DemoOrder[] = [

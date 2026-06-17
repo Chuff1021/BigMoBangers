@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Bebas_Neue } from "next/font/google";
+import { Bebas_Neue, Inter } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ToastProvider } from "@/components/ui/toast";
 import { IS_DEMO } from "@/lib/mode";
@@ -9,6 +9,12 @@ const display = Bebas_Neue({
   weight: "400",
   subsets: ["latin"],
   variable: "--font-display",
+});
+
+const sans = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -21,8 +27,8 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const body = (
-    <html lang="en" className={`${display.variable} h-full antialiased`}>
-      <body className="min-h-full">
+    <html lang="en" className={`${display.variable} ${sans.variable} h-full antialiased`}>
+      <body className="min-h-full font-sans">
         <ToastProvider>{children}</ToastProvider>
       </body>
     </html>

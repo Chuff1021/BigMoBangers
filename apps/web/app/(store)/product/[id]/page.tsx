@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Check, AlertTriangle } from "lucide-react";
 import { getProduct } from "@/lib/store";
 import { AddToCartPanel } from "@/components/store/add-to-cart-panel";
 
@@ -28,33 +28,49 @@ export default async function ProductDetail({
     product.inventoryQty > 0 &&
     product.inventoryQty <= product.lowStockThreshold;
   const yt = product.youtubeUrl ? youtubeId(product.youtubeUrl) : null;
+  const gallery = [product.imageUrl, ...product.images].filter(
+    (src, idx, arr): src is string => Boolean(src) && arr.indexOf(src) === idx
+  );
 
   return (
     <div className="space-y-6">
       <Link
         href="/shop"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-electric"
+        className="inline-flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-usared"
       >
         <ArrowLeft className="h-4 w-4" /> Back to shop
       </Link>
 
       <div className="grid gap-8 md:grid-cols-2">
         {/* Media */}
-        <div className="space-y-4">
-          <div className="ring-anim rounded-3xl">
-            <div className="glass flex aspect-square items-center justify-center overflow-hidden rounded-3xl bg-gradient-to-br from-navy/40 to-black/40">
-              {product.imageUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={product.imageUrl} alt={product.name} className="h-full w-full object-cover" />
-              ) : (
-                <span className="text-[8rem] drop-shadow-[0_0_30px_rgba(255,59,48,0.5)]">
-                  {product.category?.emoji ?? "🎆"}
-                </span>
-              )}
-            </div>
+        <div className="space-y-3">
+          <div className="card-lite flex aspect-square items-center justify-center overflow-hidden p-6">
+            {gallery[0] ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={gallery[0]} alt={product.name} className="h-full w-full object-contain" />
+            ) : (
+              <span className="text-[8rem]">{product.category?.emoji ?? "🎆"}</span>
+            )}
           </div>
+          {gallery.length > 1 && (
+            <div className="grid grid-cols-4 gap-2">
+              {gallery.slice(1, 5).map((src, index) => (
+                <a
+                  key={src}
+                  href={src}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="card-lite block aspect-square overflow-hidden p-1.5"
+                  aria-label={`Open ${product.name} photo ${index + 2}`}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src} alt="" className="h-full w-full object-contain" />
+                </a>
+              ))}
+            </div>
+          )}
           {yt && (
-            <div className="aspect-video overflow-hidden rounded-2xl ring-1 ring-white/10">
+            <div className="card-lite aspect-video overflow-hidden p-0">
               <iframe
                 className="h-full w-full"
                 src={`https://www.youtube.com/embed/${yt}`}
@@ -69,43 +85,49 @@ export default async function ProductDetail({
         {/* Info */}
         <div className="space-y-5">
           {product.category && (
-            <span className="glass inline-block rounded-full px-3 py-1 text-xs font-semibold text-white">
+            <span className="inline-block rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-usablue">
               {product.category.emoji} {product.category.name}
             </span>
           )}
-          <h1 className="font-display text-4xl leading-none tracking-wide text-white sm:text-5xl">
+          <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-slate-900 sm:text-4xl">
             {product.name}
           </h1>
-          <div className="font-display text-5xl tracking-wide text-gold">
+          <div className="text-4xl font-bold tracking-tight text-slate-900">
             ${Number(product.price).toFixed(2)}
           </div>
 
           <div>
             {out ? (
-              <span className="text-sm font-bold uppercase tracking-wider text-brand">Out of stock</span>
+              <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500">
+                <AlertTriangle className="h-4 w-4" /> Out of stock
+              </span>
             ) : low ? (
-              <span className="text-sm font-bold uppercase tracking-wider text-gold">
-                Only {product.inventoryQty} left — grab &apos;em!
+              <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-amber-600">
+                <AlertTriangle className="h-4 w-4" /> Only {product.inventoryQty} left
               </span>
             ) : (
-              <span className="text-sm font-bold uppercase tracking-wider text-electric">In stock</span>
+              <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-600">
+                <Check className="h-4 w-4" /> In stock
+              </span>
             )}
           </div>
 
           {product.description && (
-            <p className="text-base leading-relaxed text-muted-foreground">{product.description}</p>
+            <p className="text-base leading-relaxed text-slate-600">{product.description}</p>
           )}
 
-          <AddToCartPanel
-            product={{
-              id: product.id,
-              name: product.name,
-              price: product.price,
-              imageUrl: product.imageUrl,
-              emoji: product.category?.emoji,
-              outOfStock: out,
-            }}
-          />
+          <div className="card-lite p-4">
+            <AddToCartPanel
+              product={{
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                imageUrl: product.imageUrl,
+                emoji: product.category?.emoji,
+                outOfStock: out,
+              }}
+            />
+          </div>
         </div>
       </div>
     </div>

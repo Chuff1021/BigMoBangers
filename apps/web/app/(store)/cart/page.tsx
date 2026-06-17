@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import { useCart, TAX_RATE } from "@/components/store/cart-context";
 
 export default function CartPage() {
@@ -11,15 +11,17 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="glass mx-auto flex max-w-lg flex-col items-center rounded-3xl py-16 text-center">
-        <ShoppingBag className="h-14 w-14 text-muted-foreground" />
-        <h1 className="mt-4 font-display text-3xl tracking-wide text-white">YOUR CART IS EMPTY</h1>
-        <p className="mt-1 text-muted-foreground">Add some bangers and light up the night.</p>
+      <div className="card-lite mx-auto flex max-w-lg flex-col items-center py-16 text-center">
+        <span className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+          <ShoppingBag className="h-8 w-8" />
+        </span>
+        <h1 className="mt-5 text-2xl font-bold tracking-tight text-slate-900">Your cart is empty</h1>
+        <p className="mt-1 text-slate-500">Add some bangers and light up the night.</p>
         <Link
           href="/shop"
-          className="glow-red mt-6 rounded-xl bg-brand px-6 py-3 font-display text-lg tracking-wide text-white"
+          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-usared px-6 py-3 text-sm font-semibold text-white hover:bg-usared-dark"
         >
-          START SHOPPING
+          Start shopping <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
     );
@@ -27,46 +29,46 @@ export default function CartPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-display text-4xl tracking-wider text-rwb">YOUR CART</h1>
+      <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Your cart</h1>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-3 lg:col-span-2">
           {items.map((item) => (
-            <div key={item.productId} className="glass flex items-center gap-4 rounded-2xl p-3">
-              <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl bg-white/5">
+            <div key={item.productId} className="card-lite flex items-center gap-4 p-3">
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-slate-50 p-1.5">
                 {item.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={item.imageUrl} alt={item.name} className="h-full w-full object-cover" />
+                  <img src={item.imageUrl} alt={item.name} className="h-full w-full object-contain" />
                 ) : (
                   <span className="text-2xl">{item.emoji ?? "🎆"}</span>
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <div className="truncate font-semibold text-white">{item.name}</div>
-                <div className="text-sm text-muted-foreground">${item.price.toFixed(2)} each</div>
-                <div className="mt-2 flex items-center gap-2">
+                <div className="truncate font-semibold text-slate-900">{item.name}</div>
+                <div className="text-sm text-slate-500">${item.price.toFixed(2)} each</div>
+                <div className="mt-2 flex items-center gap-1 rounded-lg border border-slate-200 p-0.5 w-fit">
                   <button
                     onClick={() => updateQty(item.productId, item.quantity - 1)}
-                    className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 hover:bg-white/20"
+                    className="flex h-7 w-7 items-center justify-center rounded-md text-slate-600 hover:bg-slate-100"
                   >
-                    <Minus className="h-3 w-3" />
+                    <Minus className="h-3.5 w-3.5" />
                   </button>
-                  <span className="min-w-6 text-center font-semibold">{item.quantity}</span>
+                  <span className="min-w-7 text-center text-sm font-semibold">{item.quantity}</span>
                   <button
                     onClick={() => updateQty(item.productId, item.quantity + 1)}
-                    className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 hover:bg-white/20"
+                    className="flex h-7 w-7 items-center justify-center rounded-md text-slate-600 hover:bg-slate-100"
                   >
-                    <Plus className="h-3 w-3" />
+                    <Plus className="h-3.5 w-3.5" />
                   </button>
                 </div>
               </div>
               <div className="flex flex-col items-end gap-2">
-                <span className="font-display text-xl tracking-wide text-gold">
+                <span className="text-lg font-bold text-slate-900">
                   ${(item.price * item.quantity).toFixed(2)}
                 </span>
                 <button
                   onClick={() => removeItem(item.productId)}
-                  className="text-muted-foreground hover:text-brand"
+                  className="text-slate-400 hover:text-usared"
                   aria-label="Remove"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -77,26 +79,24 @@ export default function CartPage() {
         </div>
 
         {/* Summary */}
-        <div className="glass h-fit rounded-2xl p-5">
-          <h2 className="mb-4 font-display text-2xl tracking-wide text-white">SUMMARY</h2>
+        <div className="card-lite h-fit p-5">
+          <h2 className="mb-4 text-lg font-bold tracking-tight text-slate-900">Order summary</h2>
           <div className="space-y-2 text-sm">
             <Row label="Subtotal" value={subtotal} />
             <Row label="Estimated tax (8.25%)" value={tax} />
-            <div className="my-2 h-px bg-white/10" />
-            <div className="flex justify-between font-display text-2xl tracking-wide text-gold">
+            <div className="my-2 h-px bg-slate-200" />
+            <div className="flex justify-between text-lg font-bold text-slate-900">
               <span>Total</span>
               <span>${total.toFixed(2)}</span>
             </div>
           </div>
           <Link
             href="/checkout"
-            className="glow-red mt-5 block rounded-xl bg-brand py-3.5 text-center font-display text-xl tracking-wide text-white transition-transform hover:scale-[1.02]"
+            className="mt-5 flex items-center justify-center gap-2 rounded-xl bg-usared py-3.5 text-sm font-semibold text-white transition-colors hover:bg-usared-dark"
           >
-            CHECKOUT
+            Checkout <ArrowRight className="h-4 w-4" />
           </Link>
-          <p className="mt-2 text-center text-xs text-muted-foreground">
-            Secure payment via Clover
-          </p>
+          <p className="mt-2 text-center text-xs text-slate-400">Secure payment via Clover</p>
         </div>
       </div>
     </div>
@@ -105,9 +105,9 @@ export default function CartPage() {
 
 function Row({ label, value }: { label: string; value: number }) {
   return (
-    <div className="flex justify-between text-muted-foreground">
+    <div className="flex justify-between text-slate-500">
       <span>{label}</span>
-      <span className="text-white">${value.toFixed(2)}</span>
+      <span className="text-slate-900">${value.toFixed(2)}</span>
     </div>
   );
 }

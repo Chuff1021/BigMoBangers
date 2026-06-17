@@ -7,6 +7,8 @@ import type { ApiProduct } from "@/lib/api";
 export function ProductCard({ product }: { product: ApiProduct }) {
   const router = useRouter();
   const addItem = useCart((s) => s.addItem);
+  const photoCount = [product.imageUrl, ...(product.images ?? [])].filter(Boolean).length;
+  const hasVideo = Boolean(product.youtubeUrl || product.streamVideoId);
 
   return (
     <Pressable
@@ -22,6 +24,22 @@ export function ProductCard({ product }: { product: ApiProduct }) {
           />
         ) : (
           <Text className="text-4xl">🎆</Text>
+        )}
+        {(photoCount > 0 || hasVideo) && (
+          <View className="absolute bottom-2 left-2 flex-row gap-1">
+            {photoCount > 0 && (
+              <View className="rounded-full bg-black/70 px-2 py-1">
+                <Text className="text-[10px] font-bold uppercase text-white">
+                  {photoCount} Photos
+                </Text>
+              </View>
+            )}
+            {hasVideo && (
+              <View className="rounded-full bg-black/70 px-2 py-1">
+                <Text className="text-[10px] font-bold uppercase text-white">Video</Text>
+              </View>
+            )}
+          </View>
         )}
       </View>
       <View className="p-3">

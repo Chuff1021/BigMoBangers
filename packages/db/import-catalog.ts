@@ -24,7 +24,7 @@
  * so "true stock" stays auditable.
  */
 import { readFileSync } from "node:fs";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "./client";
 import {
   tenants,
@@ -158,15 +158,22 @@ async function main() {
       categoryId = cat.id;
     }
 
-    const tags = cost ? [`cost:${cost}`] : [];
+    const tags = [
+      ...(sku ? [`sku:${sku}`] : []),
+      ...(cost ? [`cost:${cost}`] : []),
+    ];
 
     // Find existing by SKU (in tags) or by exact name.
     let existing: Product | undefined;
     if (sku) {
       existing = await db.query.products.findFirst({
-        where: and(eq(products.tenantId, tenant.id), eq(products.name, name)),
+        where: and(
+          eq(products.tenantId, tenant.id),
+          sql`${products.tags} @> ${JSON.stringify([`sku:${sku}`])}::jsonb`
+        ),
       });
-    } else {
+    }
+    if (!existing) {
       existing = await db.query.products.findFirst({
         where: and(eq(products.tenantId, tenant.id), eq(products.name, name)),
       });

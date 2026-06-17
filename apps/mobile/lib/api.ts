@@ -104,12 +104,7 @@ export function fetchProducts(filters: ProductFilters = {}): Promise<ApiProduct[
 }
 
 export function fetchProductById(id: string): Promise<ApiProduct> {
-  // Public list is the storefront source of truth; find within it by id.
-  return fetchProducts().then((list) => {
-    const found = list.find((p) => p.id === id);
-    if (!found) throw new Error("Product not found");
-    return found;
-  });
+  return request<ApiProduct>(withTenant(`/api/products/${id}`));
 }
 
 export function fetchCategories(): Promise<ApiCategory[]> {

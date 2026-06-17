@@ -11,7 +11,8 @@
     "db:migrate": "cd packages/db && drizzle-kit migrate",
     "db:studio": "cd packages/db && drizzle-kit studio",
     "db:seed": "tsx packages/db/seed.ts",
-    "import:catalog": "tsx packages/db/import-catalog.ts"
+    "import:catalog": "tsx packages/db/import-catalog.ts",
+    "sync:fireworks-supermarket": "node scripts/sync-fireworks-supermarket-catalog.mjs"
   },
   "devDependencies": {
     "turbo": "^2.5.8",

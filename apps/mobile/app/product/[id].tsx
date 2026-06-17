@@ -47,14 +47,17 @@ export default function ProductDetailScreen() {
     product.trackInventory
   );
   const outOfStock = product.trackInventory && product.inventoryQty <= 0;
+  const gallery = [product.imageUrl, ...(product.images ?? [])].filter(
+    (src, idx, arr): src is string => Boolean(src) && arr.indexOf(src) === idx
+  );
 
   return (
     <View className="flex-1 bg-white">
       <ScrollView contentContainerClassName="pb-28">
         <View className="aspect-square w-full items-center justify-center bg-slate-100">
-          {product.imageUrl ? (
+          {gallery[0] ? (
             <Image
-              source={{ uri: product.imageUrl }}
+              source={{ uri: gallery[0] }}
               className="h-full w-full"
               resizeMode="cover"
             />
@@ -64,6 +67,23 @@ export default function ProductDetailScreen() {
         </View>
 
         <View className="px-4">
+          {gallery.length > 1 && (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerClassName="gap-2 py-3"
+            >
+              {gallery.slice(1, 7).map((src) => (
+                <View
+                  key={src}
+                  className="h-16 w-16 overflow-hidden rounded-xl bg-slate-100"
+                >
+                  <Image source={{ uri: src }} className="h-full w-full" resizeMode="cover" />
+                </View>
+              ))}
+            </ScrollView>
+          )}
+
           <VideoPlayer
             streamVideoId={product.streamVideoId}
             youtubeUrl={product.youtubeUrl}
