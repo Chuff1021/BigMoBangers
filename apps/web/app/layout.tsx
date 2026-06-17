@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Bebas_Neue, Inter } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ToastProvider } from "@/components/ui/toast";
-import { IS_DEMO } from "@/lib/mode";
+import { AUTH_ENABLED } from "@/lib/mode";
 import "./globals.css";
 
 const display = Bebas_Neue({
@@ -34,8 +34,8 @@ export default function RootLayout({
     </html>
   );
 
-  // In demo mode there's no Clerk — render without the provider so no key is needed.
-  if (IS_DEMO) return body;
+  // Only wrap in Clerk when auth is configured; otherwise render open.
+  if (!AUTH_ENABLED) return body;
 
   return <ClerkProvider>{body}</ClerkProvider>;
 }

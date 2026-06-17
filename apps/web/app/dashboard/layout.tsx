@@ -3,7 +3,7 @@ import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import { Store } from "lucide-react";
 import { getTenant } from "@/lib/store";
-import { IS_DEMO } from "@/lib/mode";
+import { IS_DEMO, AUTH_ENABLED } from "@/lib/mode";
 import { Sidebar } from "@/components/dashboard/sidebar";
 
 export const dynamic = "force-dynamic";
@@ -52,12 +52,12 @@ export default async function DashboardLayout({
               Operator Command Center
             </div>
           </div>
-          {IS_DEMO ? (
-            <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-usablue">
-              ★ Live Demo
-            </span>
-          ) : (
+          {AUTH_ENABLED ? (
             <UserButton afterSignOutUrl="/dashboard" />
+          ) : (
+            <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-usablue">
+              {IS_DEMO ? "★ Live Demo" : "● Live · Open access"}
+            </span>
           )}
         </header>
         <main className="flex-1 overflow-auto p-6">{children}</main>
