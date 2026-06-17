@@ -37,6 +37,12 @@ export default async function StoreHome() {
   const [products, categories] = await Promise.all([listProducts(), listCategories()]);
   const featured = products.filter((p) => p.isFeatured).map(toStore).slice(0, 8);
   const all = products.map(toStore).slice(0, 12);
+  const categoryCounts = new Map<string, number>();
+  for (const product of products) {
+    if (product.category?.id) {
+      categoryCounts.set(product.category.id, (categoryCounts.get(product.category.id) ?? 0) + 1);
+    }
+  }
 
   return (
     <div className="space-y-14">
@@ -163,17 +169,36 @@ export default async function StoreHome() {
       {/* CATEGORIES */}
       <section>
         <SectionHead eyebrow="Browse" title="Shop by category" href="/shop" />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+          <div className="mb-4 flex flex-col gap-1 border-b border-slate-100 pb-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Catalog sections</p>
+              <p className="mt-1 text-sm text-slate-500">Browse the full Fireworks Supermarket lineup by product type.</p>
+            </div>
+            <Link href="/shop" className="text-sm font-bold text-usablue hover:text-usared">
+              View all {products.length} products
+            </Link>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map((c) => (
             <Link
               key={c.id}
               href={`/shop?categoryId=${c.id}`}
-              className="card-lite card-hover flex flex-col items-center gap-2 px-3 py-5 text-center"
+              className="group flex min-h-20 items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-left transition-colors hover:border-usablue/40 hover:bg-white"
             >
-              <span className="text-3xl">{c.emoji}</span>
-              <span className="text-sm font-semibold text-slate-800">{c.name}</span>
+              <span className="h-10 w-1.5 shrink-0 rounded-full bg-usablue/20 transition-colors group-hover:bg-usared" />
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-extrabold leading-snug text-slate-900">{c.name}</span>
+                <span className="mt-1 block text-xs font-semibold text-slate-500">
+                  {categoryCounts.get(c.id) ?? 0} products
+                </span>
+              </span>
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-400 transition-colors group-hover:border-usared group-hover:text-usared">
+                <ArrowRight className="h-4 w-4" />
+              </span>
             </Link>
           ))}
+          </div>
         </div>
       </section>
 
