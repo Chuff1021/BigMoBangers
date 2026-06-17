@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ShoppingCart, Package, Search } from "lucide-react";
@@ -29,14 +28,9 @@ export function StoreNav() {
       <div className="border-b border-slate-200 bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3 sm:px-6">
           <Link href="/" className="flex shrink-0 items-center">
-            <Image
-              src="/brand/logo.png"
-              alt="Big MO's Bangers"
-              width={1290}
-              height={689}
-              priority
-              className="h-11 w-auto rounded-md ring-1 ring-slate-200"
-            />
+            <span className="text-lg font-extrabold tracking-tight text-slate-900 sm:text-xl">
+              Big <span className="text-usared">MO&apos;s</span> Bangers
+            </span>
           </Link>
 
           {/* Search (desktop) */}
