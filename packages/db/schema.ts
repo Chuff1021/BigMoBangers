@@ -125,6 +125,8 @@ export const products = pgTable(
     }),
     name: text("name").notNull(),
     description: text("description"),
+    sku: text("sku"),
+    barcode: text("barcode"),
     price: numeric("price", { precision: 10, scale: 2 }).notNull(),
     imageUrl: text("image_url"),
     images: jsonb("images").$type<string[]>().default([]).notNull(),
@@ -143,6 +145,8 @@ export const products = pgTable(
     index("products_tenant_idx").on(t.tenantId),
     index("products_category_idx").on(t.categoryId),
     index("products_featured_idx").on(t.tenantId, t.isFeatured),
+    index("products_barcode_idx").on(t.tenantId, t.barcode),
+    index("products_sku_idx").on(t.tenantId, t.sku),
   ]
 );
 

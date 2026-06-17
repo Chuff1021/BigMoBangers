@@ -37,6 +37,29 @@ export async function getProducts(tenantId: string, filters: ProductFilters = {}
   });
 }
 
+/**
+ * Resolve a scanned barcode/SKU to a product. Matches (in order) the dedicated
+ * barcode column, the sku column, a `sku:<code>` tag, then the raw product id.
+ */
+export async function getProductByCode(tenantId: string, code: string) {
+  const trimmed = code.trim();
+  if (!trimmed) return null;
+  const result = await db.query.products.findFirst({
+    where: and(
+      eq(products.tenantId, tenantId),
+      sql`(
+        ${products.barcode} = ${trimmed}
+        OR ${products.sku} = ${trimmed}
+        OR ${products.tags} @> ${JSON.stringify([`sku:${trimmed}`])}::jsonb
+        OR ${products.tags} @> ${JSON.stringify([trimmed])}::jsonb
+        OR ${products.id}::text = ${trimmed}
+      )`
+    ),
+    with: { category: true },
+  });
+  return result ?? null;
+}
+
 export async function getProductById(tenantId: string, productId: string) {
   const result = await db.query.products.findFirst({
     where: and(eq(products.id, productId), eq(products.tenantId, tenantId)),

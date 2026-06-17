@@ -45,6 +45,13 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabIcon emoji="📦" color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="staff"
+        options={{
+          title: "Staff",
+          tabBarIcon: ({ color }) => <TabIcon emoji="📷" color={color} />,
+        }}
+      />
     </Tabs>
   );
 }

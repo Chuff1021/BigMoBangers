@@ -140,3 +140,35 @@ export function createCloverCheckout(
     { method: "POST", body: JSON.stringify({ ...data, tenantSlug: TENANT }) }
   );
 }
+
+/** Staff: resolve a scanned barcode/SKU to a product (null if not found). */
+export async function fetchProductByCode(code: string): Promise<ApiProduct | null> {
+  try {
+    return await request<ApiProduct>(withTenant("/api/products/scan", { code }));
+  } catch {
+    return null;
+  }
+}
+
+export interface PosSaleItem {
+  productId: string;
+  quantity: number;
+}
+export interface PosSaleResponse {
+  id: string;
+  orderNumber: string;
+  total: string;
+  method: string;
+  href: string | null;
+}
+
+/** Staff: complete an in-person register sale. */
+export function posSale(
+  items: PosSaleItem[],
+  opts: { method: "cash" | "card"; customerName?: string; customerPhone?: string } = { method: "card" }
+): Promise<PosSaleResponse> {
+  return request<PosSaleResponse>(withTenant("/api/pos/sale"), {
+    method: "POST",
+    body: JSON.stringify({ ...opts, items }),
+  });
+}

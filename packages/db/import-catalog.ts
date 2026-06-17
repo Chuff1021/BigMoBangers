@@ -128,6 +128,7 @@ async function main() {
       continue;
     }
     const sku = pick(row, ["sku", "item", "itemnumber", "code", "itemcode"]);
+    const barcode = pick(row, ["barcode", "upc", "ean", "gtin", "upccode"]) || null;
     const categoryName = pick(row, ["category", "dept", "department", "type"]);
     const price = toMoney(pick(row, ["price", "retail", "retailprice", "msrp"])) ?? "0.00";
     const cost = toMoney(pick(row, ["cost", "wholesale", "wholesaleprice"]));
@@ -186,6 +187,8 @@ async function main() {
         .set({
           categoryId: categoryId ?? existing.categoryId,
           description: description ?? existing.description,
+          sku: sku || existing.sku,
+          barcode: barcode ?? existing.barcode,
           price,
           imageUrl: imageUrl ?? existing.imageUrl,
           images: extraImages.length ? extraImages : existing.images,
@@ -214,6 +217,8 @@ async function main() {
           categoryId,
           name,
           description,
+          sku: sku || null,
+          barcode,
           price,
           imageUrl,
           images: extraImages,

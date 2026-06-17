@@ -69,6 +69,25 @@ export async function getProduct(id: string): Promise<DemoProduct | null> {
   return (await getProductById(t.id, id)) as unknown as DemoProduct | null;
 }
 
+/** Resolve a scanned barcode/SKU/id to a product. */
+export async function productByCode(code: string): Promise<DemoProduct | null> {
+  const trimmed = code.trim();
+  if (!trimmed) return null;
+  if (IS_DEMO) {
+    const lc = trimmed.toLowerCase();
+    return (
+      DEMO_PRODUCTS.find(
+        (p) =>
+          p.id === trimmed ||
+          p.tags.some((t) => t.toLowerCase() === `sku:${lc}` || t.toLowerCase() === lc)
+      ) ?? null
+    );
+  }
+  const { getProductByCode } = await db();
+  const t = await getTenant();
+  return (await getProductByCode(t.id, trimmed)) as unknown as DemoProduct | null;
+}
+
 export async function listOrders(filters: { status?: string } = {}): Promise<DemoOrder[]> {
   if (IS_DEMO) {
     let list = DEMO_ORDERS.slice().sort((a, b) => b.createdAt.localeCompare(a.createdAt));

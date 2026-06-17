@@ -55,6 +55,14 @@ export default function RootLayout() {
             name="checkout/payment"
             options={{ headerShown: true, title: "Payment" }}
           />
+          <Stack.Screen
+            name="staff/checkout"
+            options={{ headerShown: true, title: "Register" }}
+          />
+          <Stack.Screen
+            name="staff/lookup"
+            options={{ headerShown: true, title: "Product Lookup" }}
+          />
         </Stack>
       </QueryClientProvider>
     </ClerkProvider>

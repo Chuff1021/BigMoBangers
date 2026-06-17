@@ -35,7 +35,13 @@
         }
       ],
       "expo-video",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Big MO's staff to scan product barcodes."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": false
