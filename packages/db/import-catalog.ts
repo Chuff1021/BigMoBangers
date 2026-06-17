@@ -15,7 +15,7 @@
  *   qty | quantity | stock | onhand    -> on-hand inventory
  *   image | imageurl | photo | picture -> primary image URL
  *   images                             -> extra image URLs (| or ; separated)
- *   video | youtube | youtubeurl       -> YouTube URL
+ *   video | youtube | youtubeurl       -> video URL (YouTube/Vimeo/MP4)
  *   description | desc | details        -> description
  *   featured                           -> truthy => featured
  *

@@ -6,11 +6,33 @@ import { AddToCartPanel } from "@/components/store/add-to-cart-panel";
 
 export const dynamic = "force-dynamic";
 
-function youtubeId(url: string): string | null {
-  const m = url.match(
-    /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/
-  );
-  return m ? m[1] : null;
+function videoEmbed(url: string | null): { src: string; title: string; kind: "iframe" | "video" } | null {
+  if (!url) return null;
+  const youtubeId = url.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/
+  )?.[1];
+  if (youtubeId) {
+    return {
+      src: `https://www.youtube-nocookie.com/embed/${youtubeId}`,
+      title: "Product video",
+      kind: "iframe",
+    };
+  }
+
+  const vimeoId = url.match(/(?:player\.)?vimeo\.com\/(?:video\/)?(\d+)/)?.[1];
+  if (vimeoId) {
+    return {
+      src: `https://player.vimeo.com/video/${vimeoId}`,
+      title: "Product video",
+      kind: "iframe",
+    };
+  }
+
+  if (/\.mp4(?:\?|$)/i.test(url)) {
+    return { src: url, title: "Product video", kind: "video" };
+  }
+
+  return null;
 }
 
 export default async function ProductDetail({
@@ -27,7 +49,7 @@ export default async function ProductDetail({
     product.trackInventory &&
     product.inventoryQty > 0 &&
     product.inventoryQty <= product.lowStockThreshold;
-  const yt = product.youtubeUrl ? youtubeId(product.youtubeUrl) : null;
+  const video = videoEmbed(product.youtubeUrl);
   const gallery = [product.imageUrl, ...product.images].filter(
     (src, idx, arr): src is string => Boolean(src) && arr.indexOf(src) === idx
   );
@@ -69,15 +91,19 @@ export default async function ProductDetail({
               ))}
             </div>
           )}
-          {yt && (
+          {video && (
             <div className="card-lite aspect-video overflow-hidden p-0">
-              <iframe
-                className="h-full w-full"
-                src={`https://www.youtube.com/embed/${yt}`}
-                title="Product video"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
+              {video.kind === "iframe" ? (
+                <iframe
+                  className="h-full w-full"
+                  src={video.src}
+                  title={video.title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                  allowFullScreen
+                />
+              ) : (
+                <video className="h-full w-full bg-black" controls preload="metadata" src={video.src} />
+              )}
             </div>
           )}
         </div>

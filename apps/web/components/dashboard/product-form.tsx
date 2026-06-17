@@ -194,12 +194,12 @@ export function ProductForm({
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="youtube">YouTube URL</Label>
+        <Label htmlFor="youtube">Video URL</Label>
         <Input
           id="youtube"
           value={youtubeUrl}
           onChange={(e) => setYoutubeUrl(e.target.value)}
-          placeholder="https://youtube.com/watch?v=..."
+          placeholder="https://player.vimeo.com/video/... or https://youtube.com/watch?v=..."
         />
       </div>
 
