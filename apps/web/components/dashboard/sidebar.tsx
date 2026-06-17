@@ -9,11 +9,15 @@ import {
   Sparkles,
   Users,
   Settings,
+  CreditCard,
+  Receipt,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV = [
   { href: "/dashboard", label: "Command Center", icon: LayoutDashboard },
+  { href: "/dashboard/register", label: "Register (POS)", icon: CreditCard },
+  { href: "/dashboard/payments", label: "Payments", icon: Receipt },
   { href: "/dashboard/orders", label: "Orders", icon: ClipboardList },
   { href: "/dashboard/inventory", label: "Inventory", icon: Boxes },
   { href: "/dashboard/products", label: "Products", icon: Sparkles },
