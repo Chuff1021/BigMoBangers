@@ -25,7 +25,7 @@ export default function StaffHub() {
             <ArrowRight className="h-5 w-5 text-slate-300" />
           </div>
           <p className="mt-1 text-sm text-slate-500">
-            Scan each item to build the order, then take cash or card payment.
+            Scan each item, show the total, then record the sale after payment on Clover.
           </p>
         </Link>
 

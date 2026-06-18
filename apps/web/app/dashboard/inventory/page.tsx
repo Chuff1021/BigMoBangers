@@ -1,5 +1,8 @@
+import Link from "next/link";
+import { Pencil } from "lucide-react";
 import { listProducts } from "@/lib/store";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -14,7 +17,7 @@ import { formatMoney } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 
 export default async function InventoryPage() {
-  const products = await listProducts({ includeInactive: true });
+  const products = await listProducts();
 
   return (
     <div className="space-y-6">
@@ -25,17 +28,18 @@ export default async function InventoryPage() {
 
       <div className="card-lite p-6">
         <h2 className="mb-4 text-lg font-bold tracking-tight text-slate-900">
-          {products.length} products on the shelf
+          {products.length} active store products
         </h2>
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Item #</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Category</TableHead>
               <TableHead className="text-right">Price</TableHead>
               <TableHead className="text-right">Stock</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="text-right">Adjust</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -43,6 +47,9 @@ export default async function InventoryPage() {
               const low = p.trackInventory && p.inventoryQty <= p.lowStockThreshold;
               return (
                 <TableRow key={p.id}>
+                  <TableCell className="font-semibold tabular-nums text-slate-500">
+                    {p.sku ?? "—"}
+                  </TableCell>
                   <TableCell className="font-medium text-slate-900">{p.name}</TableCell>
                   <TableCell className="text-slate-500">
                     {p.category?.emoji} {p.category?.name ?? "—"}
@@ -60,8 +67,18 @@ export default async function InventoryPage() {
                       <Badge variant="success">In stock</Badge>
                     )}
                   </TableCell>
-                  <TableCell>
-                    <InventoryControls productId={p.id} qty={p.inventoryQty} />
+                  <TableCell className="space-y-2">
+                    <div className="flex justify-end">
+                      <InventoryControls productId={p.id} qty={p.inventoryQty} />
+                    </div>
+                    <div className="flex justify-end">
+                      <Button asChild size="sm" variant="outline">
+                        <Link href={`/dashboard/products/${p.id}`}>
+                          <Pencil className="h-3.5 w-3.5" />
+                          Edit
+                        </Link>
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               );

@@ -25,6 +25,7 @@ export default async function EditProductPage({
           initial={{
             id: product.id,
             name: product.name,
+            sku: product.sku,
             price: product.price,
             categoryId: product.categoryId,
             description: product.description,

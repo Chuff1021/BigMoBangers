@@ -25,6 +25,7 @@ export interface CategoryOption {
 export interface ProductFormValues {
   id?: string;
   name: string;
+  sku?: string | null;
   price: string;
   categoryId?: string | null;
   description?: string | null;
@@ -51,6 +52,7 @@ export function ProductForm({
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [name, setName] = useState(initial?.name ?? "");
+  const [sku, setSku] = useState(initial?.sku ?? "");
   const [price, setPrice] = useState(initial?.price ?? "");
   const [categoryId, setCategoryId] = useState<string>(initial?.categoryId ?? NONE);
   const [description, setDescription] = useState(initial?.description ?? "");
@@ -114,6 +116,7 @@ export function ProductForm({
 
     const payload = {
       name: name.trim(),
+      sku: sku.trim() || undefined,
       price,
       categoryId: categoryId === NONE ? undefined : categoryId,
       description: description || undefined,
@@ -156,6 +159,15 @@ export function ProductForm({
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
+          <Label htmlFor="sku">Item #</Label>
+          <Input
+            id="sku"
+            value={sku}
+            onChange={(e) => setSku(e.target.value)}
+            placeholder="Fireworks item number"
+          />
+        </div>
+        <div className="space-y-1.5">
           <Label htmlFor="price">Price * (e.g. 49.99)</Label>
           <Input
             id="price"
@@ -166,22 +178,23 @@ export function ProductForm({
             required
           />
         </div>
-        <div className="space-y-1.5">
-          <Label>Category</Label>
-          <Select value={categoryId} onValueChange={setCategoryId}>
-            <SelectTrigger>
-              <SelectValue placeholder="Uncategorized" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={NONE}>Uncategorized</SelectItem>
-              {categories.map((c) => (
-                <SelectItem key={c.id} value={c.id}>
-                  {c.emoji} {c.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label>Category</Label>
+        <Select value={categoryId} onValueChange={setCategoryId}>
+          <SelectTrigger>
+            <SelectValue placeholder="Uncategorized" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={NONE}>Uncategorized</SelectItem>
+            {categories.map((c) => (
+              <SelectItem key={c.id} value={c.id}>
+                {c.emoji} {c.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-1.5">
