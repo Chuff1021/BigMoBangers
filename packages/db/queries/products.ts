@@ -51,6 +51,8 @@ export async function getProductByCode(tenantId: string, code: string) {
         ${products.barcode} = ${trimmed}
         OR ${products.sku} = ${trimmed}
         OR ${products.tags} @> ${JSON.stringify([`sku:${trimmed}`])}::jsonb
+        OR ${products.tags} @> ${JSON.stringify([`barcode:${trimmed}`])}::jsonb
+        OR ${products.tags} @> ${JSON.stringify([`source-id:${trimmed}`])}::jsonb
         OR ${products.tags} @> ${JSON.stringify([trimmed])}::jsonb
         OR ${products.id}::text = ${trimmed}
       )`

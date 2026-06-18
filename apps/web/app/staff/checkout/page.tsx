@@ -10,6 +10,8 @@ interface ScannedProduct {
   id: string;
   name: string;
   price: string;
+  sku: string | null;
+  barcode: string | null;
   imageUrl: string | null;
 }
 interface Line {

@@ -17,22 +17,31 @@ function arg(name) {
   return process.argv[process.argv.indexOf(hit) + 1] ?? null;
 }
 
-function stripHtml(value = "") {
+function decodeHtml(value = "") {
   return value
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCodePoint(Number.parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, num) => String.fromCodePoint(Number.parseInt(num, 10)))
+    .replace(/&amp;/g, "&")
+    .replace(/&#038;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;|&apos;/g, "'")
+    .replace(/&ldquo;|&rdquo;/g, '"')
+    .replace(/&lsquo;|&rsquo;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">");
+}
+
+function stripHtml(value = "") {
+  return decodeHtml(value)
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
     .replace(/<style[\s\S]*?<\/style>/gi, " ")
     .replace(/<[^>]*>/g, " ")
-    .replace(/&#8217;/g, "'")
-    .replace(/&#8243;/g, '"')
-    .replace(/&ldquo;|&rdquo;/g, '"')
-    .replace(/&rsquo;|&apos;/g, "'")
-    .replace(/&amp;/g, "&")
     .replace(/\s+/g, " ")
     .trim();
 }
 
 function csv(value) {
-  const text = String(value ?? "");
+  const text = Array.isArray(value) ? value.join("|") : String(value ?? "");
   return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
@@ -40,16 +49,6 @@ function money(product) {
   const raw = Number(product.prices?.price ?? 0);
   const places = Number(product.prices?.currency_minor_unit ?? 2);
   return (raw / 10 ** places).toFixed(2);
-}
-
-function decodeHtml(value = "") {
-  return value
-    .replace(/&amp;/g, "&")
-    .replace(/&#038;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;|&apos;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">");
 }
 
 function normalizeVideoUrl(raw = "") {
@@ -171,27 +170,36 @@ let videoCount = 0;
 const rows = await mapLimit(products, concurrency, async (product, index) => {
     const images = (product.images ?? []).map((img) => img.src).filter(Boolean);
     const video = await productPageVideo(product);
+    const fallbackSku = `fwsm-${product.id}`;
+    const supplierSku = stripHtml(product.sku ?? "");
+    const scanCode = supplierSku || fallbackSku;
     if (video) videoCount += 1;
     if ((index + 1) % 100 === 0 || index + 1 === products.length) {
       console.log(`Prepared ${index + 1}/${products.length} products (${videoCount} videos)`);
     }
     return {
       name: stripHtml(product.name),
-      sku: `fwsm-${product.id}`,
+      sku: scanCode,
+      barcode: scanCode,
+      sourceId: fallbackSku,
+      supplierSku,
       category: product.categories?.[0]?.name ?? "",
       price: money(product),
       qty: defaultQty,
       image: images[0] ?? "",
-      images: images.slice(1).join("|"),
+      images: images.slice(1),
       video,
       description: stripHtml(product.description || product.short_description),
-      featured: product.is_featured ? "yes" : "",
+      featured: Boolean(product.is_featured),
     };
 });
 
 const headers = [
   "name",
   "sku",
+  "barcode",
+  "sourceId",
+  "supplierSku",
   "category",
   "price",
   "qty",
@@ -207,5 +215,9 @@ const text = [
   ...rows.map((row) => headers.map((key) => csv(row[key])).join(",")),
 ].join("\n");
 
-await writeFile(output, `${text}\n`);
+if (output.toLowerCase().endsWith(".json")) {
+  await writeFile(output, `${JSON.stringify(rows, null, 2)}\n`);
+} else {
+  await writeFile(output, `${text}\n`);
+}
 console.log(`Wrote ${rows.length} products (${videoCount} videos) to ${output}`);

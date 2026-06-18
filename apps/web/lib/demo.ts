@@ -29,6 +29,8 @@ export interface DemoProduct {
   tags: string[];
   categoryId: string | null;
   category: DemoCategory | null;
+  sku: string | null;
+  barcode: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -80,6 +82,9 @@ const SOURCE_PREFIX = "fwsm-";
 type CatalogRow = {
   name: string;
   sku: string;
+  barcode?: string | null;
+  sourceId?: string | null;
+  supplierSku?: string | null;
   category: string;
   price: string;
   qty: number;
@@ -118,7 +123,7 @@ function categoryEmoji(name: string): string {
   return "🎇";
 }
 
-const rows = catalogRows as CatalogRow[];
+const rows = catalogRows as unknown as CatalogRow[];
 const categoryNames = Array.from(new Set(rows.map((row) => row.category || "Uncategorized")));
 
 export const DEMO_CATEGORIES: DemoCategory[] = categoryNames.map((name, index) => ({
@@ -133,7 +138,7 @@ const categoryByName = new Map(DEMO_CATEGORIES.map((category) => [category.name,
 export const DEMO_PRODUCTS: DemoProduct[] = rows.map((row, index) => {
   const category = categoryByName.get(row.category || "Uncategorized") ?? null;
   return {
-    id: productId(row.sku || String(index + 1)),
+    id: productId(row.sourceId || row.sku || String(index + 1)),
     name: row.name,
     description: row.description,
     price: row.price,
@@ -146,7 +151,18 @@ export const DEMO_PRODUCTS: DemoProduct[] = rows.map((row, index) => {
     trackInventory: true,
     isFeatured: row.featured || Boolean(row.video),
     isActive: true,
-    tags: [row.sku, `source:fireworks-supermarket`].filter(Boolean),
+    sku: row.sku || null,
+    barcode: row.barcode || row.sku || null,
+    tags: [
+      row.sku,
+      row.barcode,
+      row.sourceId,
+      row.supplierSku,
+      row.sku ? `sku:${row.sku}` : null,
+      row.barcode ? `barcode:${row.barcode}` : null,
+      row.sourceId ? `source-id:${row.sourceId}` : null,
+      `source:fireworks-supermarket`,
+    ].filter(Boolean) as string[],
     categoryId: category?.id ?? null,
     category,
     createdAt: NOW,

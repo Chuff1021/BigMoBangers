@@ -79,6 +79,8 @@ export async function productByCode(code: string): Promise<DemoProduct | null> {
       DEMO_PRODUCTS.find(
         (p) =>
           p.id === trimmed ||
+          p.sku?.toLowerCase() === lc ||
+          p.barcode?.toLowerCase() === lc ||
           p.tags.some((t) => t.toLowerCase() === `sku:${lc}` || t.toLowerCase() === lc)
       ) ?? null
     );

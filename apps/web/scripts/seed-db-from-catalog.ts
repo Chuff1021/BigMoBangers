@@ -53,6 +53,8 @@ async function main() {
       categoryId,
       name: p.name,
       description: p.description || null,
+      sku: p.sku,
+      barcode: p.barcode,
       price: p.price,
       imageUrl: p.imageUrl,
       images: p.images ?? [],

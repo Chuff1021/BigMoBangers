@@ -9,6 +9,7 @@
  *
  *   name | product | title              -> product name        (required)
  *   sku  | item     | code              -> stock keeping unit   (used to upsert)
+ *   barcode | upc | ean | gtin          -> scannable barcode
  *   category | dept | type             -> category (auto-created)
  *   price | retail | msrp              -> sale price
  *   cost  | wholesale                  -> your cost (stored in tags as cost:NN)
@@ -130,6 +131,8 @@ async function main() {
     }
     const sku = pick(row, ["sku", "item", "itemnumber", "code", "itemcode"]);
     const barcode = pick(row, ["barcode", "upc", "ean", "gtin", "upccode"]) || null;
+    const sourceId = pick(row, ["sourceid", "sourceproductid", "supplierid", "woocommerceid"]);
+    const supplierSku = pick(row, ["suppliersku", "vendorsku", "manufacturersku"]);
     const categoryName = pick(row, ["category", "dept", "department", "type"]);
     const price = toMoney(pick(row, ["price", "retail", "retailprice", "msrp"])) ?? "0.00";
     const cost = toMoney(pick(row, ["cost", "wholesale", "wholesaleprice"]));
@@ -162,6 +165,9 @@ async function main() {
 
     const tags = [
       ...(sku ? [`sku:${sku}`] : []),
+      ...(barcode ? [`barcode:${barcode}`] : []),
+      ...(sourceId ? [sourceId, `source-id:${sourceId}`] : []),
+      ...(supplierSku ? [supplierSku, `supplier-sku:${supplierSku}`] : []),
       ...(cost ? [`cost:${cost}`] : []),
     ];
 
@@ -171,8 +177,16 @@ async function main() {
       existing = await db.query.products.findFirst({
         where: and(
           eq(products.tenantId, tenant.id),
-          sql`${products.tags} @> ${JSON.stringify([`sku:${sku}`])}::jsonb`
+          sql`(
+            ${products.sku} = ${sku}
+            OR ${products.tags} @> ${JSON.stringify([`sku:${sku}`])}::jsonb
+          )`
         ),
+      });
+    }
+    if (!existing && barcode) {
+      existing = await db.query.products.findFirst({
+        where: and(eq(products.tenantId, tenant.id), eq(products.barcode, barcode)),
       });
     }
     if (!existing) {
@@ -265,6 +279,21 @@ async function main() {
           .where(inArray(products.id, orphanIds));
       }
       pruned = orphanIds.length;
+    }
+
+    // Also drop categories that no longer have any active products.
+    const active = await db
+      .select({ c: products.categoryId })
+      .from(products)
+      .where(and(eq(products.tenantId, tenant.id), eq(products.isActive, true)));
+    const keepCats = new Set(active.map((r) => r.c).filter(Boolean) as string[]);
+    const allCats = await db.query.categories.findMany({
+      where: eq(categories.tenantId, tenant.id),
+      columns: { id: true },
+    });
+    const emptyCatIds = allCats.map((c) => c.id).filter((id) => !keepCats.has(id));
+    if (emptyCatIds.length) {
+      await db.delete(categories).where(inArray(categories.id, emptyCatIds));
     }
   }
 

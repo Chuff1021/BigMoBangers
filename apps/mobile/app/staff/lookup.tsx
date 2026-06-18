@@ -41,6 +41,13 @@ export default function StaffLookup() {
           )}
           <Text className="mt-1 text-2xl font-extrabold text-slate-900">{product.name}</Text>
           <Text className="mt-1 text-2xl font-extrabold text-slate-900">{money(product.price)}</Text>
+          {(product.barcode || product.sku) && (
+            <View className="mt-3 self-start rounded-lg bg-slate-100 px-3 py-2">
+              <Text className="text-xs font-semibold text-slate-600">
+                Scan code: {product.barcode || product.sku}
+              </Text>
+            </View>
+          )}
 
           {hasVideo ? (
             <View className="mt-4">

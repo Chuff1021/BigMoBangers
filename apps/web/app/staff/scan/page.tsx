@@ -9,6 +9,8 @@ interface ScannedProduct {
   id: string;
   name: string;
   price: string;
+  sku: string | null;
+  barcode: string | null;
   description: string | null;
   imageUrl: string | null;
   youtubeUrl: string | null;
@@ -75,6 +77,11 @@ export default function StaffScan() {
             )}
             <h1 className="mt-1 text-2xl font-extrabold">{product.name}</h1>
             <div className="text-2xl font-extrabold">${Number(product.price).toFixed(2)}</div>
+            {(product.barcode || product.sku) && (
+              <div className="mt-2 rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-600">
+                Scan code: {product.barcode || product.sku}
+              </div>
+            )}
           </div>
         </div>
 
