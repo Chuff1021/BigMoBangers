@@ -10,6 +10,8 @@ import {
   ArrowLeft,
   ScanLine,
   Trash2,
+  CreditCard,
+  DollarSign,
 } from "lucide-react";
 import { WebScanner } from "@/components/staff/web-scanner";
 import { useToast } from "@/components/ui/toast";
@@ -29,6 +31,12 @@ interface Line {
 }
 const TAX_RATE = 0.0825;
 const money = (n: number) => `$${n.toFixed(2)}`;
+type SaleMethod = "cash" | "clover_terminal";
+
+const saleMethodLabels: Record<SaleMethod, string> = {
+  cash: "Cash",
+  clover_terminal: "Card",
+};
 
 function normalizeCode(code: string) {
   return code.trim().toLowerCase();
@@ -112,8 +120,9 @@ export default function StaffCheckout() {
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [inventoryError, setInventoryError] = useState<string | null>(null);
   const [lastAdded, setLastAdded] = useState<string | null>(null);
+  const [saleMethod, setSaleMethod] = useState<SaleMethod>("clover_terminal");
   const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState<{ orderNumber: string; total: string } | null>(null);
+  const [done, setDone] = useState<{ orderNumber: string; total: string; method: SaleMethod } | null>(null);
   const productIndex = useMemo(() => buildProductIndex(products), [products]);
 
   const subtotal = lines.reduce((s, l) => s + Number(l.product.price) * l.qty, 0);
@@ -210,13 +219,13 @@ export default function StaffCheckout() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          method: "clover_terminal",
+          method: saleMethod,
           items: lines.map((l) => ({ productId: l.product.id, quantity: l.qty })),
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error ?? "Sale failed");
-      setDone({ orderNumber: data.orderNumber, total: data.total });
+      setDone({ orderNumber: data.orderNumber, total: data.total, method: saleMethod });
       setLines([]);
     } catch (err) {
       toast({
@@ -235,6 +244,9 @@ export default function StaffCheckout() {
         <h1 className="mt-4 text-3xl font-extrabold">Sale recorded</h1>
         <div className="mt-1 font-semibold text-usared">{done.orderNumber}</div>
         <div className="mt-1 text-3xl font-extrabold">{money(Number(done.total))}</div>
+        <div className="mt-1 text-sm font-semibold text-slate-500">
+          Paid by {saleMethodLabels[done.method]}
+        </div>
         <p className="mt-2 max-w-xs text-sm text-slate-500">
           Inventory was reduced and the sale is saved in orders.
         </p>
@@ -338,6 +350,36 @@ export default function StaffCheckout() {
           </div>
         )}
 
+        <div className="mt-3">
+          <div className="text-xs font-bold uppercase text-slate-500">Payment taken</div>
+          <div className="mt-2 grid grid-cols-2 rounded-xl border border-slate-200 bg-slate-100 p-1">
+            <button
+              type="button"
+              onClick={() => setSaleMethod("clover_terminal")}
+              className={`flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-extrabold transition ${
+                saleMethod === "clover_terminal"
+                  ? "bg-white text-slate-950 shadow-sm"
+                  : "text-slate-500"
+              }`}
+            >
+              <CreditCard className="h-4 w-4" />
+              Card
+            </button>
+            <button
+              type="button"
+              onClick={() => setSaleMethod("cash")}
+              className={`flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-extrabold transition ${
+                saleMethod === "cash"
+                  ? "bg-white text-slate-950 shadow-sm"
+                  : "text-slate-500"
+              }`}
+            >
+              <DollarSign className="h-4 w-4" />
+              Cash
+            </button>
+          </div>
+        </div>
+
         <div className="mt-3 grid grid-cols-[auto_1fr] gap-2">
           <button
             disabled={busy || lines.length === 0}
@@ -353,7 +395,7 @@ export default function StaffCheckout() {
             className="flex items-center justify-center gap-2 rounded-xl bg-usared py-3.5 font-bold text-white disabled:opacity-40"
           >
             {busy && <Loader2 className="h-5 w-5 animate-spin" />}
-            Record sale after Clover payment
+            {saleMethod === "cash" ? "Record cash sale" : "Record sale after Clover payment"}
           </button>
         </div>
       </div>
