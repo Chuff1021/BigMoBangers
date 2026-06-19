@@ -93,8 +93,11 @@ export default function StaffCheckout() {
       if (!res.ok) throw new Error(data?.error ?? "Sale failed");
       setDone({ orderNumber: data.orderNumber, total: data.total });
       setLines([]);
-    } catch {
-      toast({ title: "Could not record sale", variant: "destructive" });
+    } catch (err) {
+      toast({
+        title: err instanceof Error ? err.message : "Could not record sale",
+        variant: "destructive",
+      });
     } finally {
       setBusy(false);
     }

@@ -10,7 +10,7 @@ const SaleSchema = z.object({
     .min(1),
   customerName: z.string().optional(),
   customerPhone: z.string().optional(),
-  method: z.enum(["clover_terminal", "manual"]).default("clover_terminal"),
+  method: z.enum(["clover_terminal", "manual", "card", "cash"]).default("clover_terminal"),
 });
 
 // In-person register sale. Payment is handled outside this app on the mobile
@@ -23,14 +23,17 @@ export async function POST(req: NextRequest) {
   const { items, customerName, customerPhone, method } = parsed.data;
 
   let order;
+  const pickupNoteByMethod: Record<typeof method, string> = {
+    clover_terminal: "In-store sale · paid on Clover terminal",
+    manual: "In-store sale · manually recorded",
+    card: "In-store sale · paid by card",
+    cash: "In-store sale · paid by cash",
+  };
   try {
     order = await createOrderM({
       customerName: customerName?.trim() || "Walk-in Customer",
       customerPhone: customerPhone?.trim() || undefined,
-      pickupNote:
-        method === "clover_terminal"
-          ? "In-store sale · paid on Clover terminal"
-          : "In-store sale · manually recorded",
+      pickupNote: pickupNoteByMethod[method],
       items,
       // Counter sales are fulfilled on the spot.
       status: "completed",
