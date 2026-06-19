@@ -27,8 +27,19 @@ export function StoreNav() {
     <header className="sticky top-0 z-40">
       <div className="usa-stripe h-1 w-full" />
       <div className="border-b border-slate-200 bg-white/90 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-4 sm:px-6 sm:py-5">
-          {/* Logo — desktop only; blank on mobile */}
+        <div className="mx-auto max-w-6xl px-4 py-3 sm:flex sm:items-center sm:gap-4 sm:px-6 sm:py-5">
+          <Link href="/" className="mx-auto flex w-fit shrink-0 items-center sm:hidden">
+            <Image
+              src="/brand/logo.png"
+              alt="Big MO's Bangers"
+              width={1290}
+              height={689}
+              priority
+              sizes="160px"
+              className="h-auto w-40 rounded-lg ring-1 ring-slate-200"
+            />
+          </Link>
+
           <Link href="/" className="hidden shrink-0 items-center sm:flex">
             <Image
               src="/brand/logo.png"
@@ -49,7 +60,7 @@ export function StoreNav() {
             Search fireworks…
           </Link>
 
-          <nav className="ml-auto flex items-center gap-1">
+          <nav className="mt-3 flex items-center justify-center gap-1 sm:mt-0 sm:ml-auto">
             {link("/shop", "Shop")}
             <Link
               href="/orders"
