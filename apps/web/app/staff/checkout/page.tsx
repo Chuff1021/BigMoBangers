@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Minus,
@@ -21,6 +21,7 @@ interface ScannedProduct {
   sku: string | null;
   barcode: string | null;
   imageUrl: string | null;
+  tags?: string[];
 }
 interface Line {
   product: ScannedProduct;
@@ -29,12 +30,91 @@ interface Line {
 const TAX_RATE = 0.0825;
 const money = (n: number) => `$${n.toFixed(2)}`;
 
+function normalizeCode(code: string) {
+  return code.trim().toLowerCase();
+}
+
+function productCodes(product: ScannedProduct) {
+  const codes = new Set<string>();
+  const values = [product.id, product.sku, product.barcode, ...(product.tags ?? [])];
+
+  for (const raw of values) {
+    const value = String(raw ?? "").trim();
+    if (!value) continue;
+    codes.add(value);
+    codes.add(value.replace(/\s+/g, ""));
+
+    const separator = value.indexOf(":");
+    if (separator > -1) {
+      const stripped = value.slice(separator + 1).trim();
+      if (stripped) {
+        codes.add(stripped);
+        codes.add(stripped.replace(/\s+/g, ""));
+      }
+    }
+  }
+
+  return Array.from(codes).map(normalizeCode).filter(Boolean);
+}
+
+function buildProductIndex(products: ScannedProduct[]) {
+  const index = new Map<string, ScannedProduct>();
+  const collisions = new Set<string>();
+
+  for (const product of products) {
+    for (const code of productCodes(product)) {
+      const existing = index.get(code);
+      if (existing && existing.id !== product.id) {
+        collisions.add(code);
+        continue;
+      }
+      index.set(code, product);
+    }
+  }
+
+  for (const code of collisions) index.delete(code);
+  return index;
+}
+
+function checkoutPulse() {
+  if (typeof window === "undefined") return;
+  navigator.vibrate?.(35);
+
+  const AudioContextCtor =
+    window.AudioContext ||
+    (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  if (!AudioContextCtor) return;
+
+  try {
+    const ctx = new AudioContextCtor();
+    const oscillator = ctx.createOscillator();
+    const gain = ctx.createGain();
+    oscillator.type = "sine";
+    oscillator.frequency.value = 880;
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.08, ctx.currentTime + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.08);
+    oscillator.connect(gain);
+    gain.connect(ctx.destination);
+    oscillator.start();
+    oscillator.stop(ctx.currentTime + 0.09);
+    window.setTimeout(() => void ctx.close(), 140);
+  } catch {
+    // Some mobile browsers block audio feedback until user interaction.
+  }
+}
+
 export default function StaffCheckout() {
   const { toast } = useToast();
   const [lines, setLines] = useState<Line[]>([]);
   const [manualCode, setManualCode] = useState("");
+  const [products, setProducts] = useState<ScannedProduct[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [inventoryError, setInventoryError] = useState<string | null>(null);
+  const [lastAdded, setLastAdded] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<{ orderNumber: string; total: string } | null>(null);
+  const productIndex = useMemo(() => buildProductIndex(products), [products]);
 
   const subtotal = lines.reduce((s, l) => s + Number(l.product.price) * l.qty, 0);
   const tax = subtotal * TAX_RATE;
@@ -43,25 +123,70 @@ export default function StaffCheckout() {
   const missingPrice = lines.some((l) => Number(l.product.price) <= 0);
   const canRecord = lines.length > 0 && !busy && !missingPrice && total > 0;
 
+  useEffect(() => {
+    let cancelled = false;
+    async function loadProducts() {
+      try {
+        const res = await fetch("/api/staff/products", { cache: "no-store" });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data?.error ?? "Could not load scanner inventory");
+        if (!cancelled) {
+          setProducts(data);
+          setInventoryError(null);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setInventoryError(err instanceof Error ? err.message : "Could not load scanner inventory");
+        }
+      } finally {
+        if (!cancelled) setLoadingProducts(false);
+      }
+    }
+    void loadProducts();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  function addProduct(product: ScannedProduct) {
+    setLines((prev) => {
+      const ex = prev.find((l) => l.product.id === product.id);
+      if (ex) return prev.map((l) => (l.product.id === product.id ? { ...l, qty: l.qty + 1 } : l));
+      return [...prev, { product, qty: 1 }];
+    });
+    setLastAdded(product.name);
+    checkoutPulse();
+  }
+
+  async function lookupRemote(code: string) {
+    const res = await fetch(
+      `/api/products/scan?tenant=bigmos&code=${encodeURIComponent(code)}`,
+      { cache: "no-store" }
+    );
+    if (!res.ok) return null;
+    return (await res.json()) as ScannedProduct;
+  }
+
   async function onScan(code: string) {
     const trimmed = code.trim();
     if (!trimmed) return;
+    const product = productIndex.get(normalizeCode(trimmed)) ?? productIndex.get(normalizeCode(trimmed.replace(/\s+/g, "")));
+    if (product) {
+      addProduct(product);
+      return;
+    }
+
+    if (loadingProducts && products.length === 0) {
+      setLastAdded("Loading scanner inventory...");
+    }
+
     try {
-      const res = await fetch(
-        `/api/products/scan?tenant=bigmos&code=${encodeURIComponent(trimmed)}`,
-        { cache: "no-store" }
-      );
-      if (!res.ok) {
+      const remoteProduct = await lookupRemote(trimmed);
+      if (!remoteProduct) {
         toast({ title: `No match for ${trimmed}`, variant: "destructive" });
         return;
       }
-      const product = (await res.json()) as ScannedProduct;
-      setLines((prev) => {
-        const ex = prev.find((l) => l.product.id === product.id);
-        if (ex) return prev.map((l) => (l.product.id === product.id ? { ...l, qty: l.qty + 1 } : l));
-        return [...prev, { product, qty: 1 }];
-      });
-      toast({ title: `Added ${product.name}`, variant: "success" });
+      addProduct(remoteProduct);
     } catch {
       toast({ title: "Scan failed", variant: "destructive" });
     }
@@ -132,6 +257,17 @@ export default function StaffCheckout() {
       </Link>
 
       <WebScanner onScan={onScan} active={!busy} />
+
+      <div className="mt-3 flex items-center justify-between rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600">
+        <span>
+          {loadingProducts
+            ? "Loading scanner inventory..."
+            : inventoryError
+              ? "Scanner inventory fallback mode"
+              : `Ready: ${productIndex.size} scan codes`}
+        </span>
+        {lastAdded && <span className="max-w-[52%] truncate text-emerald-700">Added {lastAdded}</span>}
+      </div>
 
       <form
         className="mt-3 flex gap-2"

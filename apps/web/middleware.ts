@@ -10,6 +10,7 @@ const isProtectedApi = createRouteMatcher([
   "/api/inventory(.*)",
   "/api/orders(.*)",
   "/api/pos(.*)",
+  "/api/staff(.*)",
   "/api/upload(.*)",
 ]);
 
@@ -46,8 +47,7 @@ function basicAuthResponse() {
 
 function requiresBasicAuth(req: NextRequest) {
   return (
-    Boolean(process.env.BANGERS_ADMIN_PASSWORD) &&
-    (isAdminTool(req) || isProtectedApi(req) || isProtectedProductMutation(req))
+    isAdminTool(req) || isProtectedApi(req) || isProtectedProductMutation(req)
   );
 }
 

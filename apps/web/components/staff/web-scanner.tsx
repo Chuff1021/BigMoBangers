@@ -37,7 +37,7 @@ export function WebScanner({
             const code = result.getText();
             const now = Date.now();
             const last = lastRef.current;
-            if (code === last.code && now - last.t < 2200) return;
+            if (code === last.code && now - last.t < 750) return;
             lastRef.current = { code, t: now };
             setFlash(true);
             setTimeout(() => setFlash(false), 250);

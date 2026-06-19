@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { WebScanner } from "@/components/staff/web-scanner";
@@ -16,6 +16,53 @@ interface ScannedProduct {
   youtubeUrl: string | null;
   streamVideoId: string | null;
   category: { name: string; emoji: string } | null;
+  tags?: string[];
+}
+
+function normalizeCode(code: string) {
+  return code.trim().toLowerCase();
+}
+
+function productCodes(product: ScannedProduct) {
+  const codes = new Set<string>();
+  const values = [product.id, product.sku, product.barcode, ...(product.tags ?? [])];
+
+  for (const raw of values) {
+    const value = String(raw ?? "").trim();
+    if (!value) continue;
+    codes.add(value);
+    codes.add(value.replace(/\s+/g, ""));
+
+    const separator = value.indexOf(":");
+    if (separator > -1) {
+      const stripped = value.slice(separator + 1).trim();
+      if (stripped) {
+        codes.add(stripped);
+        codes.add(stripped.replace(/\s+/g, ""));
+      }
+    }
+  }
+
+  return Array.from(codes).map(normalizeCode).filter(Boolean);
+}
+
+function buildProductIndex(products: ScannedProduct[]) {
+  const index = new Map<string, ScannedProduct>();
+  const collisions = new Set<string>();
+
+  for (const product of products) {
+    for (const code of productCodes(product)) {
+      const existing = index.get(code);
+      if (existing && existing.id !== product.id) {
+        collisions.add(code);
+        continue;
+      }
+      index.set(code, product);
+    }
+  }
+
+  for (const code of collisions) index.delete(code);
+  return index;
 }
 
 function videoEmbed(url: string | null): { src: string; kind: "iframe" | "video" } | null {
@@ -32,21 +79,53 @@ function videoEmbed(url: string | null): { src: string; kind: "iframe" | "video"
 
 export default function StaffScan() {
   const [product, setProduct] = useState<ScannedProduct | null>(null);
+  const [products, setProducts] = useState<ScannedProduct[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
   const [loading, setLoading] = useState(false);
   const [notFound, setNotFound] = useState<string | null>(null);
+  const productIndex = useMemo(() => buildProductIndex(products), [products]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadProducts() {
+      try {
+        const res = await fetch("/api/staff/products", { cache: "no-store" });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data?.error ?? "Could not load scanner inventory");
+        if (!cancelled) setProducts(data);
+      } catch {
+        // The per-scan API lookup below remains as a fallback.
+      } finally {
+        if (!cancelled) setLoadingProducts(false);
+      }
+    }
+    void loadProducts();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function onScan(code: string) {
+    const trimmed = code.trim();
+    const localProduct =
+      productIndex.get(normalizeCode(trimmed)) ?? productIndex.get(normalizeCode(trimmed.replace(/\s+/g, "")));
+    if (localProduct) {
+      setNotFound(null);
+      setProduct(localProduct);
+      return;
+    }
+
     setLoading(true);
     setNotFound(null);
     try {
       const res = await fetch(
-        `/api/products/scan?tenant=bigmos&code=${encodeURIComponent(code)}`,
+        `/api/products/scan?tenant=bigmos&code=${encodeURIComponent(trimmed)}`,
         { cache: "no-store" }
       );
       if (res.ok) setProduct(await res.json());
-      else setNotFound(code);
+      else setNotFound(trimmed);
     } catch {
-      setNotFound(code);
+      setNotFound(trimmed);
     } finally {
       setLoading(false);
     }
@@ -120,6 +199,9 @@ export default function StaffScan() {
         <ArrowLeft className="h-4 w-4" /> Staff
       </Link>
       <WebScanner onScan={onScan} active={!loading} />
+      <div className="mt-3 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600">
+        {loadingProducts ? "Loading scanner inventory..." : `Ready: ${productIndex.size} scan codes`}
+      </div>
       {loading && (
         <div className="mt-4 flex items-center justify-center gap-2 text-slate-500">
           <Loader2 className="h-4 w-4 animate-spin" /> Looking up…
