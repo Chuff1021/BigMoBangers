@@ -18,6 +18,7 @@ interface ExistingProduct {
   price: string;
   sku: string | null;
   barcode: string | null;
+  inventoryQty: number;
 }
 
 function cleanPrice(value: string) {
@@ -40,6 +41,15 @@ export default function StaffAddProduct() {
   const [existing, setExisting] = useState<ExistingProduct | null>(null);
   const [created, setCreated] = useState<ExistingProduct | null>(null);
 
+  function applyExistingProduct(product: ExistingProduct | null) {
+    setExisting(product);
+    if (!product) return;
+    setName(product.name);
+    setPrice(cleanPrice(product.price));
+    setSku(product.sku ?? "");
+    setQty(String(product.inventoryQty ?? 0));
+  }
+
   async function findExisting(code: string) {
     const trimmed = code.trim();
     if (!trimmed) return null;
@@ -56,7 +66,7 @@ export default function StaffAddProduct() {
     setExisting(null);
     setChecking(true);
     try {
-      setExisting(await findExisting(code));
+      applyExistingProduct(await findExisting(code));
     } finally {
       setChecking(false);
     }
@@ -77,7 +87,7 @@ export default function StaffAddProduct() {
     const trimmedName = name.trim();
     const normalizedPrice = cleanPrice(price);
     const trimmedSku = sku.trim();
-    const startingQty = Math.max(0, Number.parseInt(qty, 10) || 0);
+    const targetQty = Math.max(0, Number.parseInt(qty, 10) || 0);
 
     if (!trimmedBarcode || !trimmedName || !normalizedPrice) {
       toast({
@@ -86,15 +96,63 @@ export default function StaffAddProduct() {
       });
       return;
     }
+
+    if (existing) {
+      setSaving(true);
+      try {
+        const updateRes = await fetch(`/api/products/${existing.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: trimmedName,
+            sku: trimmedSku || undefined,
+            barcode: trimmedBarcode,
+            price: normalizedPrice,
+          }),
+        });
+        const updatedData = await updateRes.json().catch(() => ({}));
+        if (!updateRes.ok) throw new Error(updatedData?.error ?? "Could not update product");
+
+        let updated = updatedData as ExistingProduct;
+        const qtyChange = targetQty - (existing.inventoryQty ?? 0);
+        if (qtyChange !== 0) {
+          const inventoryRes = await fetch(`/api/inventory/${existing.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              qtyChange,
+              reason: "adjustment",
+              note: `Staff barcode tool set quantity to ${targetQty}`,
+            }),
+          });
+          const inventoryData = await inventoryRes.json().catch(() => ({}));
+          if (!inventoryRes.ok) throw new Error(inventoryData?.error ?? "Could not update quantity");
+          updated = inventoryData as ExistingProduct;
+        }
+
+        applyExistingProduct({ ...updated, inventoryQty: targetQty });
+        setCreated({ ...updated, inventoryQty: targetQty });
+        toast({ title: "Product updated", variant: "success" });
+      } catch (err) {
+        toast({
+          title: err instanceof Error ? err.message : "Could not update product",
+          variant: "destructive",
+        });
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
+
     setChecking(true);
     const duplicate = await findExisting(trimmedBarcode);
     setChecking(false);
     if (duplicate) {
-      setExisting(duplicate);
+      applyExistingProduct(duplicate);
       toast({
-        title: "That barcode is already in inventory",
+        title: "Existing product loaded",
         description: duplicate.name,
-        variant: "destructive",
+        variant: "success",
       });
       return;
     }
@@ -117,7 +175,7 @@ export default function StaffAddProduct() {
           sku: trimmedSku || undefined,
           barcode: trimmedBarcode,
           price: normalizedPrice,
-          inventoryQty: startingQty,
+          inventoryQty: targetQty,
           lowStockThreshold: 0,
           trackInventory: true,
           isFeatured: false,
@@ -162,14 +220,14 @@ export default function StaffAddProduct() {
 
       {existing && (
         <div className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-800">
-          Already in inventory: {existing.name} · ${Number(existing.price).toFixed(2)}
+          Existing product loaded: {existing.name} · ${Number(existing.price).toFixed(2)} · Qty {existing.inventoryQty ?? 0}
         </div>
       )}
 
       {created && (
         <div className="mt-3 flex items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800">
           <CheckCircle2 className="h-4 w-4" />
-          Added {created.name}
+          {existing ? "Saved" : "Added"} {created.name}
         </div>
       )}
 
@@ -179,8 +237,12 @@ export default function StaffAddProduct() {
             <PackagePlus className="h-5 w-5" />
           </span>
           <div>
-            <h1 className="text-lg font-extrabold">Add POS-only product</h1>
-            <p className="text-xs text-slate-500">Hidden from the mobile store.</p>
+            <h1 className="text-lg font-extrabold">
+              {existing ? "Edit existing product" : "Add POS-only product"}
+            </h1>
+            <p className="text-xs text-slate-500">
+              {existing ? "Update price and quantity for checkout." : "Hidden from the mobile store."}
+            </p>
           </div>
         </div>
 
@@ -192,7 +254,13 @@ export default function StaffAddProduct() {
               onChange={(e) => {
                 setBarcode(e.target.value);
                 setCreated(null);
-                setExisting(null);
+                if (existing) {
+                  setExisting(null);
+                  setName("");
+                  setPrice("");
+                  setSku("");
+                  setQty("");
+                }
               }}
               onBlur={() => checkExisting(barcode)}
               inputMode="numeric"
@@ -257,11 +325,11 @@ export default function StaffAddProduct() {
 
         <button
           type="submit"
-          disabled={saving || checking || Boolean(existing)}
+          disabled={saving || checking}
           className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-usared py-3.5 font-bold text-white disabled:opacity-40"
         >
           {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : <ScanLine className="h-5 w-5" />}
-          Add to staff inventory
+          {existing ? "Save price and quantity" : "Add to staff inventory"}
         </button>
       </form>
     </div>
