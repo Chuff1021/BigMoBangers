@@ -9,7 +9,8 @@
  *
  *   name | product | title              -> product name        (required)
  *   sku  | item     | code              -> stock keeping unit   (used to upsert)
- *   barcode | upc | ean | gtin          -> scannable barcode
+ *   barcode | upc | ean | gtin          -> primary scannable barcode
+ *   aliases | aliascodes | extrabarcodes -> extra scannable codes (| or ; separated)
  *   category | dept | type             -> category (auto-created)
  *   price | retail | msrp              -> sale price
  *   cost  | wholesale                  -> your cost (stored in tags as cost:NN)
@@ -19,10 +20,16 @@
  *   video | youtube | youtubeurl       -> video URL (YouTube/Vimeo/MP4)
  *   description | desc | details        -> description
  *   featured                           -> truthy => featured
+ *   active | visible | storevisible    -> falsey => hidden from public store
  *
  * It UPSERTS by SKU (falls back to name) so re-running updates prices/stock
  * instead of duplicating. Every stock change is written to inventory_changes,
  * so "true stock" stays auditable.
+ *
+ * Use --inactive to import a batch as POS/scanner-only inventory. Those items
+ * stay scannable for staff but are hidden from the public shop. Use
+ * --no-name-match when importing unknown/drop-off items so existing public
+ * products are only updated by SKU/barcode, not by a coincidental name match.
  */
 import { readFileSync } from "node:fs";
 import { and, eq, sql, inArray } from "drizzle-orm";
@@ -89,6 +96,10 @@ function truthy(v: string): boolean {
   return /^(1|true|yes|y|x)$/i.test(v.trim());
 }
 
+function falsey(v: string): boolean {
+  return /^(0|false|no|n|hidden|inactive|pos-only|posonly)$/i.test(v.trim());
+}
+
 async function main() {
   const args = process.argv.slice(2);
   const file = args.find((a) => !a.startsWith("--"));
@@ -97,7 +108,9 @@ async function main() {
     (args.includes("--tenant") ? args[args.indexOf("--tenant") + 1] : "bigmos");
 
   if (!file) {
-    console.error("Usage: pnpm import:catalog <file.csv> [--tenant bigmos]");
+    console.error(
+      "Usage: pnpm import:catalog <file.csv> [--tenant bigmos] [--inactive] [--no-name-match]"
+    );
     process.exit(1);
   }
 
@@ -131,6 +144,10 @@ async function main() {
     }
     const sku = pick(row, ["sku", "item", "itemnumber", "code", "itemcode"]);
     const barcode = pick(row, ["barcode", "upc", "ean", "gtin", "upccode"]) || null;
+    const aliasCodes = pick(row, ["aliases", "aliascodes", "alternatebarcodes", "extrabarcodes"])
+      .split(/[|;]/)
+      .map((s) => s.trim())
+      .filter(Boolean);
     const sourceId = pick(row, ["sourceid", "sourceproductid", "supplierid", "woocommerceid"]);
     const supplierSku = pick(row, ["suppliersku", "vendorsku", "manufacturersku"]);
     const categoryName = pick(row, ["category", "dept", "department", "type"]);
@@ -146,6 +163,12 @@ async function main() {
     const youtubeUrl = pick(row, ["video", "youtube", "youtubeurl", "videourl"]) || null;
     const description = pick(row, ["description", "desc", "details"]) || null;
     const isFeatured = truthy(pick(row, ["featured", "feature"]));
+    const visibility = pick(row, ["active", "visible", "storevisible", "isactive"]);
+    const isActive = args.includes("--inactive")
+      ? false
+      : visibility
+        ? !falsey(visibility)
+        : true;
 
     // Ensure category.
     let categoryId: string | null = null;
@@ -166,6 +189,7 @@ async function main() {
     const tags = [
       ...(sku ? [`sku:${sku}`] : []),
       ...(barcode ? [`barcode:${barcode}`] : []),
+      ...aliasCodes.flatMap((code) => [code, `barcode:${code}`, `sku:${code}`]),
       ...(sourceId ? [sourceId, `source-id:${sourceId}`] : []),
       ...(supplierSku ? [supplierSku, `supplier-sku:${supplierSku}`] : []),
       ...(cost ? [`cost:${cost}`] : []),
@@ -189,7 +213,7 @@ async function main() {
         where: and(eq(products.tenantId, tenant.id), eq(products.barcode, barcode)),
       });
     }
-    if (!existing) {
+    if (!existing && !args.includes("--no-name-match")) {
       existing = await db.query.products.findFirst({
         where: and(eq(products.tenantId, tenant.id), eq(products.name, name)),
       });
@@ -210,6 +234,7 @@ async function main() {
           youtubeUrl: youtubeUrl ?? existing.youtubeUrl,
           inventoryQty: qty,
           isFeatured: isFeatured || existing.isFeatured,
+          isActive,
           tags: tags.length ? tags : existing.tags,
           updatedAt: new Date(),
         })
@@ -241,6 +266,7 @@ async function main() {
           youtubeUrl,
           inventoryQty: qty,
           isFeatured,
+          isActive,
           tags,
         })
         .returning();

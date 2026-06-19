@@ -17,7 +17,7 @@ import { formatMoney } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 
 export default async function InventoryPage() {
-  const products = await listProducts();
+  const products = await listProducts({ includeInactive: true });
 
   return (
     <div className="space-y-6">
@@ -28,7 +28,7 @@ export default async function InventoryPage() {
 
       <div className="card-lite p-6">
         <h2 className="mb-4 text-lg font-bold tracking-tight text-slate-900">
-          {products.length} active store products
+          {products.length} inventory items
         </h2>
         <Table>
           <TableHeader>
@@ -59,13 +59,16 @@ export default async function InventoryPage() {
                     {p.trackInventory ? p.inventoryQty : "∞"}
                   </TableCell>
                   <TableCell>
-                    {!p.trackInventory ? (
-                      <Badge variant="secondary">Untracked</Badge>
-                    ) : low ? (
-                      <Badge variant="destructive">Low stock</Badge>
-                    ) : (
-                      <Badge variant="success">In stock</Badge>
-                    )}
+                    <div className="flex flex-wrap gap-1.5">
+                      {!p.isActive ? <Badge variant="secondary">POS only</Badge> : null}
+                      {!p.trackInventory ? (
+                        <Badge variant="secondary">Untracked</Badge>
+                      ) : low ? (
+                        <Badge variant="destructive">Low stock</Badge>
+                      ) : (
+                        <Badge variant="success">In stock</Badge>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell className="space-y-2">
                     <div className="flex justify-end">

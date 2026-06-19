@@ -33,6 +33,7 @@ packages/db/migrations/meta/_journal.json.bak
 
 # misc
 coverage/
+tmp/
 *.tsbuildinfo
 expo-env.d.ts
 .admin-login.txt
